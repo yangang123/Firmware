@@ -38,6 +38,7 @@ set(msg_files
 	actuator_outputs.msg
 	adc_report.msg
 	airspeed.msg
+	att_ctrl_status.msg
 	att_pos_mocap.msg
 	battery_status.msg
 	camera_capture.msg
@@ -57,7 +58,6 @@ set(msg_files
 	estimator_status.msg
 	filtered_bottom_flow.msg
 	follow_target.msg
-	fw_att_ctrl_status.msg
 	fw_pos_ctrl_status.msg
 	geofence_result.msg
 	gps_dump.msg
@@ -68,7 +68,6 @@ set(msg_files
 	log_message.msg
 	manual_control_setpoint.msg
 	mavlink_log.msg
-	mc_att_ctrl_status.msg
 	mission.msg
 	mission_result.msg
 	mount_orientation.msg

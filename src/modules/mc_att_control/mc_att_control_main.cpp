@@ -71,7 +71,7 @@
 #include <uORB/topics/actuator_controls.h>
 #include <uORB/topics/battery_status.h>
 #include <uORB/topics/manual_control_setpoint.h>
-#include <uORB/topics/mc_att_ctrl_status.h>
+#include <uORB/topics/att_ctrl_status.h>
 #include <uORB/topics/multirotor_motor_limits.h>
 #include <uORB/topics/parameter_update.h>
 #include <uORB/topics/sensor_bias.h>
@@ -159,7 +159,6 @@ private:
 	struct vehicle_control_mode_s		_v_control_mode;	/**< vehicle control mode */
 	struct actuator_controls_s		_actuators;		/**< actuator controls */
 	struct vehicle_status_s			_vehicle_status;	/**< vehicle status */
-	struct mc_att_ctrl_status_s 		_controller_status;	/**< controller status */
 	struct battery_status_s			_battery_status;	/**< battery status */
 	struct sensor_gyro_s			_sensor_gyro;		/**< gyro data before thermal correctons and ekf bias estimates are applied */
 	struct sensor_correction_s		_sensor_correction;	/**< sensor thermal corrections */
@@ -364,7 +363,6 @@ MulticopterAttitudeControl::MulticopterAttitudeControl() :
 	_v_control_mode{},
 	_actuators{},
 	_vehicle_status{},
-	_controller_status{},
 	_battery_status{},
 	_sensor_gyro{},
 	_sensor_correction{},
@@ -1247,10 +1245,11 @@ MulticopterAttitudeControl::task_main()
 					}
 				}
 
-				_controller_status.roll_rate_integ = _rates_int(0);
-				_controller_status.pitch_rate_integ = _rates_int(1);
-				_controller_status.yaw_rate_integ = _rates_int(2);
-				_controller_status.timestamp = hrt_absolute_time();
+				struct att_ctrl_status_s controller_status = {};
+				controller_status.roll_rate_integ = _rates_int(0);
+				controller_status.pitch_rate_integ = _rates_int(1);
+				controller_status.yaw_rate_integ = _rates_int(2);
+				controller_status.timestamp = hrt_absolute_time();
 
 				if (!_actuators_0_circuit_breaker_enabled) {
 					if (_actuators_0_pub != nullptr) {
@@ -1266,10 +1265,10 @@ MulticopterAttitudeControl::task_main()
 
 				/* publish controller status */
 				if (_controller_status_pub != nullptr) {
-					orb_publish(ORB_ID(mc_att_ctrl_status), _controller_status_pub, &_controller_status);
+					orb_publish(ORB_ID(mc_att_ctrl_status), _controller_status_pub, &controller_status);
 
 				} else {
-					_controller_status_pub = orb_advertise(ORB_ID(mc_att_ctrl_status), &_controller_status);
+					_controller_status_pub = orb_advertise(ORB_ID(mc_att_ctrl_status), &controller_status);
 				}
 			}
 
@@ -1300,17 +1299,18 @@ MulticopterAttitudeControl::task_main()
 						}
 					}
 
-					_controller_status.roll_rate_integ = _rates_int(0);
-					_controller_status.pitch_rate_integ = _rates_int(1);
-					_controller_status.yaw_rate_integ = _rates_int(2);
-					_controller_status.timestamp = hrt_absolute_time();
+					struct att_ctrl_status_s controller_status = {};
+					controller_status.roll_rate_integ = _rates_int(0);
+					controller_status.pitch_rate_integ = _rates_int(1);
+					controller_status.yaw_rate_integ = _rates_int(2);
+					controller_status.timestamp = hrt_absolute_time();
 
 					/* publish controller status */
 					if (_controller_status_pub != nullptr) {
-						orb_publish(ORB_ID(mc_att_ctrl_status), _controller_status_pub, &_controller_status);
+						orb_publish(ORB_ID(mc_att_ctrl_status), _controller_status_pub, &controller_status);
 
 					} else {
-						_controller_status_pub = orb_advertise(ORB_ID(mc_att_ctrl_status), &_controller_status);
+						_controller_status_pub = orb_advertise(ORB_ID(mc_att_ctrl_status), &controller_status);
 					}
 
 					/* publish attitude rates setpoint */
