@@ -57,6 +57,7 @@ set(msg_files
 	estimator_status.msg
 	filtered_bottom_flow.msg
 	follow_target.msg
+	fw_att_ctrl_status.msg
 	fw_pos_ctrl_status.msg
 	geofence_result.msg
 	gps_dump.msg

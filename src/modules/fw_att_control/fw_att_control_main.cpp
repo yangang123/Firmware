@@ -70,6 +70,7 @@
 #include <uORB/topics/vehicle_status.h>
 #include <uORB/uORB.h>
 #include <vtol_att_control/vtol_type.h>
+#include <uORB/topics/fw_att_ctrl_status.h>
 
 using matrix::Eulerf;
 using matrix::Quatf;
@@ -130,6 +131,7 @@ private:
 	orb_advert_t	_attitude_sp_pub;		/**< attitude setpoint point */
 	orb_advert_t	_actuators_0_pub;		/**< actuator control group 0 setpoint */
 	orb_advert_t	_actuators_2_pub;		/**< actuator control group 1 setpoint (Airframe) */
+	orb_advert_t	_fw_att_ctrl_status_pub;	/**< actuator control group 0 setpoint */
 
 	orb_id_t _rates_sp_id;	// pointer to correct rates setpoint uORB metadata structure
 	orb_id_t _actuators_id;	// pointer to correct actuator controls0 uORB metadata structure
@@ -146,6 +148,7 @@ private:
 	struct vehicle_land_detected_s			_vehicle_land_detected;	/**< vehicle land detected */
 	struct vehicle_rates_setpoint_s			_rates_sp;	/* attitude rates setpoint */
 	struct vehicle_status_s				_vehicle_status;	/**< vehicle status */
+	struct fw_att_ctrl_status_s 			_fw_att_ctrl_status;	/**< controller status */
 
 	Subscription<airspeed_s>			_sub_airspeed;
 
@@ -371,6 +374,7 @@ FixedwingAttitudeControl::FixedwingAttitudeControl() :
 	_attitude_sp_pub(nullptr),
 	_actuators_0_pub(nullptr),
 	_actuators_2_pub(nullptr),
+	_fw_att_ctrl_status_pub(nullptr),
 
 	_rates_sp_id(nullptr),
 	_actuators_id(nullptr),
@@ -402,6 +406,7 @@ FixedwingAttitudeControl::FixedwingAttitudeControl() :
 	_vcontrol_mode = {};
 	_vehicle_land_detected = {};
 	_vehicle_status = {};
+	_fw_att_ctrl_status = {};
 
 	_parameter_handles.p_tc = param_find("FW_P_TC");
 	_parameter_handles.p_p = param_find("FW_PR_P");
@@ -1192,6 +1197,21 @@ FixedwingAttitudeControl::task_main()
 				} else if (_rates_sp_id) {
 					/* advertise the attitude rates setpoint */
 					_rate_sp_pub = orb_advertise(_rates_sp_id, &_rates_sp);
+				}
+
+				_fw_att_ctrl_status.timestamp = hrt_absolute_time();
+				_fw_att_ctrl_status.roll_rate_integ = _roll_ctrl.get_integrator();
+				_fw_att_ctrl_status.pitch_rate_integ = _pitch_ctrl.get_integrator();
+				_fw_att_ctrl_status.yaw_rate_integ = _yaw_ctrl.get_integrator();
+				_fw_att_ctrl_status.wheel_rate_integ = _wheel_ctrl.get_integrator();
+
+				if (_fw_att_ctrl_status_pub != nullptr) {
+					/* publish the attitude rates setpoint */
+					orb_publish(ORB_ID(fw_att_ctrl_status), _fw_att_ctrl_status_pub, &_fw_att_ctrl_status);
+
+				} else {
+					/* advertise the attitude rates setpoint */
+					_fw_att_ctrl_status_pub = orb_advertise(ORB_ID(fw_att_ctrl_status), &_fw_att_ctrl_status);
 				}
 
 			} else {

@@ -101,6 +101,7 @@
 #include <uORB/topics/commander_state.h>
 #include <uORB/topics/cpuload.h>
 #include <uORB/topics/task_stack_info.h>
+#include <uORB/topics/fw_att_ctrl_status.h>
 
 #include <systemlib/systemlib.h>
 #include <systemlib/param/param.h>
@@ -1193,6 +1194,7 @@ int sdlog2_thread_main(int argc, char *argv[])
 		struct cpuload_s cpuload;
 		struct vehicle_gps_position_s dual_gps_pos;
 		struct task_stack_info_s task_stack_info;
+		struct fw_att_ctrl_status_s fw_att_ctrl_status;
 	} buf;
 
 	memset(&buf, 0, sizeof(buf));
@@ -1250,6 +1252,7 @@ int sdlog2_thread_main(int argc, char *argv[])
 			struct log_LOAD_s log_LOAD;
 			struct log_DPRS_s log_DPRS;
 			struct log_STCK_s log_STCK;
+			struct log_FACS_s log_FACS;
 		} body;
 	} log_msg = {
 		LOG_PACKET_HEADER_INIT(0)
@@ -1299,6 +1302,7 @@ int sdlog2_thread_main(int argc, char *argv[])
 		int cpuload_sub;
 		int diff_pres_sub;
 		int task_stack_info_sub;
+		int fw_att_ctrl_status_sub;
 	} subs;
 
 	subs.cmd_sub = -1;
@@ -1341,6 +1345,7 @@ int sdlog2_thread_main(int argc, char *argv[])
 	subs.cpuload_sub = -1;
 	subs.diff_pres_sub = -1;
 	subs.task_stack_info_sub = -1;
+	subs.fw_att_ctrl_status_sub = -1;
 
 	/* add new topics HERE */
 
@@ -2123,6 +2128,16 @@ int sdlog2_thread_main(int argc, char *argv[])
 			log_msg.msg_type = LOG_LAND_MSG;
 			log_msg.body.log_LAND.landed = buf.land_detected.landed;
 			LOGBUFFER_WRITE_AND_COUNT(LAND);
+        }
+
+		/* --- FIXED-WING ATTITUDE CONTROLLER STATUS --- */
+		if (copy_if_updated(ORB_ID(fw_att_ctrl_status), &subs.fw_att_ctrl_status_sub, &buf.fw_att_ctrl_status)) {
+			log_msg.msg_type = LOG_FACS_MSG;
+			log_msg.body.log_FACS.roll_rate_integ = buf.fw_att_ctrl_status.roll_rate_integ;
+			log_msg.body.log_FACS.pitch_rate_integ = buf.fw_att_ctrl_status.pitch_rate_integ;
+			log_msg.body.log_FACS.yaw_rate_integ = buf.fw_att_ctrl_status.yaw_rate_integ;
+			log_msg.body.log_FACS.wheel_rate_integ = buf.fw_att_ctrl_status.wheel_rate_integ;
+			LOGBUFFER_WRITE_AND_COUNT(FACS);
 		}
 
 		/* --- LOAD --- */

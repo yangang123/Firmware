@@ -558,6 +558,15 @@ struct log_STCK_s {
 	uint16_t stack_free;
 };
 
+/* --- FWAS - FIXED-WING ATTITUDE CONTROLLER STATUS */
+#define LOG_FACS_MSG 66
+struct log_FACS_s {
+	float roll_rate_integ;
+	float pitch_rate_integ;
+	float yaw_rate_integ;
+	float wheel_rate_integ;
+};
+
 /********** SYSTEM MESSAGES, ID > 0x80 **********/
 
 /* --- TIME - TIME STAMP --- */
@@ -642,6 +651,7 @@ static const struct log_format_s log_formats[] = {
 	LOG_FORMAT(LAND, "B", "Landed"),
 	LOG_FORMAT(LOAD, "f", "CPU"),
 	LOG_FORMAT(DPRS, "Qfff", "errors,DPRESraw,DPRES,Temp"),
+	LOG_FORMAT(FACS, "ffff", "RRint,PRint,YRint,WRint"),
 	LOG_FORMAT(STCK, "NH", "Task,Free"),
 	/* system-level messages, ID >= 0x80 */
 	/* FMT: don't write format of format message, it's useless */
