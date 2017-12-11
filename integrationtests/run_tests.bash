@@ -5,10 +5,6 @@
 # License: according to LICENSE.md in the root directory of the PX4 Firmware repository
 set -e
 
-# TODO move to docker image
-pip install --upgrade numpy -q
-pip install px4tools pymavlink toml -q
-
 # A POSIX variable
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
 
