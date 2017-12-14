@@ -1096,9 +1096,6 @@ ADIS16448::ioctl(struct file *filp, int cmd, unsigned long arg)
 			return OK;
 		}
 
-	case SENSORIOCGQUEUEDEPTH:
-		return _accel_reports->size();
-
 	case ACCELIOCGSAMPLERATE:
 		return _sample_rate;
 
@@ -1172,9 +1169,6 @@ ADIS16448::gyro_ioctl(struct file *filp, int cmd, unsigned long arg)
 			return OK;
 		}
 
-	case SENSORIOCGQUEUEDEPTH:
-		return _gyro_reports->size();
-
 	case GYROIOCGSAMPLERATE:
 		return _sample_rate;
 
@@ -1239,9 +1233,6 @@ ADIS16448::mag_ioctl(struct file *filp, int cmd, unsigned long arg)
 
 			return OK;
 		}
-
-	case SENSORIOCGQUEUEDEPTH:
-		return _mag_reports->size();
 
 	case MAGIOCGSAMPLERATE:
 		return _sample_rate;
