@@ -37,9 +37,16 @@ endif()
 
 file(RELATIVE_PATH PX4_BINARY_DIR_REL ${CMAKE_CURRENT_BINARY_DIR} ${PX4_BINARY_DIR})
 
+# in cygwin the linker gets called in a different place than on mac, on linux both paths work
+if (CMAKE_HOST_SYSTEM_NAME STREQUAL CYGWIN)
+	set(LD_SCRIPT_DIR_REL "")
+else()
+	set(LD_SCRIPT_DIR_REL ${PX4_BINARY_DIR_REL})
+endif ()
+
 target_link_libraries(${FW_NAME}
 
-	-Wl,--script=${PX4_BINARY_DIR_REL}/NuttX/nuttx/configs/${BOARD}/scripts/${LD_SCRIPT}
+	-Wl,--script=${LD_SCRIPT_DIR_REL}NuttX/nuttx/configs/${BOARD}/scripts/${LD_SCRIPT}
 	-Wl,-Map=${CONFIG}.map
 	-Wl,--warn-common,--gc-sections
 
@@ -66,7 +73,7 @@ string(REPLACE ".elf" ".px4" fw_file ${fw_file})
 string(REPLACE "nuttx_" "" fw_file ${fw_file})
 
 add_custom_command(OUTPUT ${BOARD}.bin
-	COMMAND ${OBJCOPY} -O binary ${PX4_BINARY_DIR_REL}/${FW_NAME} ${BOARD}.bin
+	COMMAND ${OBJCOPY} -O binary ${PX4_BINARY_DIR_REL}${FW_NAME} ${BOARD}.bin
 	DEPENDS ${FW_NAME}
 	)
 
