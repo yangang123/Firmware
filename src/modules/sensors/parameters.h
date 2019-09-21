@@ -43,11 +43,11 @@
 #include <px4_config.h>
 #include <drivers/drv_rc_input.h>
 
-#include <systemlib/param/param.h>
+#include <parameters/param.h>
 #include <mathlib/mathlib.h>
 
 #include <uORB/topics/rc_parameter_map.h>
-
+#include <uORB/topics/input_rc.h>
 
 namespace sensors
 {
@@ -64,7 +64,9 @@ struct Parameters {
 	float scaling_factor[RC_MAX_CHAN_COUNT];
 
 	float diff_pres_offset_pa;
+#ifdef ADC_AIRSPEED_VOLTAGE_CHANNEL
 	float diff_pres_analog_scale;
+#endif /* ADC_AIRSPEED_VOLTAGE_CHANNEL */
 
 	int32_t board_rotation;
 
@@ -96,6 +98,7 @@ struct Parameters {
 	int32_t rc_map_aux3;
 	int32_t rc_map_aux4;
 	int32_t rc_map_aux5;
+	int32_t rc_map_aux6;
 
 	int32_t rc_map_param[rc_parameter_map_s::RC_PARAM_MAP_NCHAN];
 
@@ -141,6 +144,7 @@ struct Parameters {
 	float battery_v_div;
 	float battery_a_per_v;
 	int32_t battery_source;
+	int32_t battery_adc_channel;
 
 	float baro_qnh;
 
@@ -157,7 +161,9 @@ struct ParameterHandles {
 	param_t dz[RC_MAX_CHAN_COUNT];
 
 	param_t diff_pres_offset_pa;
+#ifdef ADC_AIRSPEED_VOLTAGE_CHANNEL
 	param_t diff_pres_analog_scale;
+#endif /* ADC_AIRSPEED_VOLTAGE_CHANNEL */
 
 	param_t rc_map_roll;
 	param_t rc_map_pitch;
@@ -185,6 +191,7 @@ struct ParameterHandles {
 	param_t rc_map_aux3;
 	param_t rc_map_aux4;
 	param_t rc_map_aux5;
+	param_t rc_map_aux6;
 
 	param_t rc_map_param[rc_parameter_map_s::RC_PARAM_MAP_NCHAN];
 	param_t rc_param[rc_parameter_map_s::RC_PARAM_MAP_NCHAN];	/**< param handles for the parameters which are bound
@@ -219,6 +226,7 @@ struct ParameterHandles {
 	param_t battery_v_div;
 	param_t battery_a_per_v;
 	param_t battery_source;
+	param_t battery_adc_channel;
 
 	param_t board_rotation;
 
@@ -234,14 +242,13 @@ struct ParameterHandles {
 
 /**
  * initialize ParameterHandles struct
- * @return 0 on succes, <0 on error
  */
-int initialize_parameter_handles(ParameterHandles &parameter_handles);
+void initialize_parameter_handles(ParameterHandles &parameter_handles);
 
 
 /**
  * Read out the parameters using the handles into the parameters struct.
- * @return 0 on succes, <0 on error
+ * @return 0 on success, <0 on error
  */
 int update_parameters(const ParameterHandles &parameter_handles, Parameters &parameters);
 

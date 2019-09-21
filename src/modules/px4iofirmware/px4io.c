@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2012-2015 PX4 Development Team. All rights reserved.
+ *   Copyright (c) 2012-2017 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -34,6 +34,8 @@
 /**
  * @file px4io.c
  * Top-level logic for the PX4IO module.
+ *
+ * @author Lorenz Meier <lorenz@px4.io>
  */
 
 #include <px4_config.h>
@@ -52,9 +54,8 @@
 #include <drivers/drv_pwm_output.h>
 #include <drivers/drv_hrt.h>
 
-#include <systemlib/perf_counter.h>
-#include <systemlib/pwm_limit/pwm_limit.h>
-#include <systemlib/systemlib.h>
+#include <perf/perf_counter.h>
+#include <output_limit/output_limit.h>
 
 #include <stm32_uart.h>
 
@@ -67,7 +68,7 @@ struct sys_state_s 	system_state;
 
 static struct hrt_call serial_dma_call;
 
-pwm_limit_t pwm_limit;
+output_limit_t pwm_limit;
 
 float dt;
 
@@ -265,8 +266,8 @@ user_start(int argc, char *argv[])
 
 	up_cxxinitialize();
 
-#	if defined(CONFIG_EXAMPLES_NSH_CXXINITIALIZE)
-#  		error CONFIG_EXAMPLES_NSH_CXXINITIALIZE Must not be defined! Use CONFIG_HAVE_CXX and CONFIG_HAVE_CXXINITIALIZE.
+#	if defined(CONFIG_SYSTEM_NSH_CXXINITIALIZE)
+#  		error CONFIG_SYSTEM_NSH_CXXINITIALIZE Must not be defined! Use CONFIG_HAVE_CXX and CONFIG_HAVE_CXXINITIALIZE.
 #	endif
 
 #else
@@ -337,7 +338,7 @@ user_start(int argc, char *argv[])
 	syslog(LOG_INFO, "MEM: free %u, largest %u\n", minfo.mxordblk, minfo.fordblks);
 
 	/* initialize PWM limit lib */
-	pwm_limit_init(&pwm_limit);
+	output_limit_init(&pwm_limit);
 
 	/*
 	 *    P O L I C E    L I G H T S
