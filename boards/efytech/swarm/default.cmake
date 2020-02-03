@@ -16,29 +16,29 @@ px4_add_board(
 		TEL2:/dev/ttyS2
 		TEL4:/dev/ttyS3
 	DRIVERS
-		adc
-		barometer # all available barometer drivers
-		batt_smbus
-		camera_capture
-		camera_trigger
-		differential_pressure # all available differential pressure drivers
-		distance_sensor # all available distance sensor drivers
+		#adc
+		#barometer # all available barometer drivers
+		#batt_smbus
+		#camera_capture
+		#camera_trigger
+	#	differential_pressure # all available differential pressure drivers
+		#distance_sensor # all available distance sensor drivers
 		#dshot
 		gps
-		heater
+		#heater
 		#imu # all available imu drivers
 		#imu/adis16448
 		#imu/adis16477
 		#imu/adis16497
 		imu/bmi088
-		#imu/mpu6000
+		#imu/bmi055
 		#imu/mpu9250
-		irlock
+		#irlock
 		#lights/blinkm
 		#lights/rgbled
 		#lights/rgbled_ncp5623c
-		magnetometer # all available magnetometer drivers
-		mkblctrl
+		#magnetometer # all available magnetometer drivers
+		#mkblctrl
 		#optical_flow # all available optical flow drivers
 		#osd
 		#pca9685
@@ -49,11 +49,11 @@ px4_add_board(
 		pwm_out_sim
 		px4fmu
 		#px4io
-		roboclaw
+		#roboclaw
 		#tap_esc
 		#telemetry # all available telemetry drivers
 		test_ppm
-		tone_alarm
+		#tone_alarm
 #		uavcan - No H7 or FD can support in UAVCAN yet
 	MODULES
 		airspeed_selector
@@ -64,8 +64,8 @@ px4_add_board(
 		dataman
 		ekf2
 		events
-		fw_att_control
-		fw_pos_control_l1
+		#fw_att_control
+		#fw_pos_control_l1
 		land_detector
 		landing_target_estimator
 		load_mon
@@ -82,7 +82,7 @@ px4_add_board(
 		sih
 		temperature_compensation
 		vmount
-		vtol_att_control
+		#vtol_att_control
 	SYSTEMCMDS
 		bl_update
 		config
@@ -95,7 +95,7 @@ px4_add_board(
 		mixer
 		motor_ramp
 		motor_test
-		mtd
+		# mtd
 		nshterm
 		param
 		perf
@@ -104,7 +104,7 @@ px4_add_board(
 		reflect
 		sd_bench
 		shutdown
-		tests # tests and test runner
+		#tests # tests and test runner
 		top
 		topic_listener
 		tune_control
