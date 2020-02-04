@@ -103,12 +103,8 @@ __EXPORT void board_peripheral_reset(int ms)
 {
 	/* set the peripheral rails off */
 
-	VDD_5V_PERIPH_EN(false);
-	VDD_3V3_SENSORS_EN(false);
 
-	bool last = READ_VDD_3V3_SPEKTRUM_POWER_EN();
 	/* Keep Spektum on to discharge rail*/
-	VDD_3V3_SPEKTRUM_POWER_EN(false);
 
 	/* wait for the peripheral rail to reach GND */
 	usleep(ms * 1000);
@@ -116,10 +112,7 @@ __EXPORT void board_peripheral_reset(int ms)
 
 	/* re-enable power */
 
-	/* switch the peripheral rail back on */
-	VDD_3V3_SPEKTRUM_POWER_EN(last);
-	VDD_3V3_SENSORS_EN(true);
-	VDD_5V_PERIPH_EN(true);
+
 
 }
 
@@ -208,25 +201,21 @@ stm32_boardinitialize(void)
 
 __EXPORT int board_app_initialize(uintptr_t arg)
 {
-	/* Power on Interfaces */
-	VDD_3V3_SD_CARD_EN(true);
-	VDD_5V_PERIPH_EN(true);
-	VDD_5V_HIPOWER_EN(true);
-	VDD_3V3_SENSORS_EN(true);
-	VDD_3V3_SPEKTRUM_POWER_EN(true);
+
+
 
 	/* Need hrt running before using the ADC */
 
 	px4_platform_init();
 
 
-	if (OK == board_determine_hw_info()) {
-		syslog(LOG_INFO, "[boot] Rev 0x%1x : Ver 0x%1x %s\n", board_get_hw_revision(), board_get_hw_version(),
-		       board_get_hw_type_name());
+	// if (OK == board_determine_hw_info()) {
+	// 	syslog(LOG_INFO, "[boot] Rev 0x%1x : Ver 0x%1x %s\n", board_get_hw_revision(), board_get_hw_version(),
+	// 	       board_get_hw_type_name());
 
-	} else {
-		syslog(LOG_ERR, "[boot] Failed to read HW revision and version\n");
-	}
+	// } else {
+	// 	syslog(LOG_ERR, "[boot] Failed to read HW revision and version\n");
+	// }
 
 	/* configure the DMA allocator */
 
@@ -256,19 +245,17 @@ __EXPORT int board_app_initialize(uintptr_t arg)
 
 	/* initial LED state */
 	drv_led_start();
-	led_off(LED_RED);
 	led_on(LED_GREEN); // Indicate Power.
 	led_off(LED_BLUE);
 
 	if (board_hardfault_init(2, true) != 0) {
-		led_on(LED_RED);
+
 	}
 
 #ifdef CONFIG_MMCSD
 	int ret = stm32_sdio_initialize();
 
 	if (ret != OK) {
-		led_on(LED_RED);
 		return ret;
 	}
 

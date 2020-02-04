@@ -48,7 +48,7 @@ else()
 		can.c
 		init.c
 		led.c
-		manifest.c
+		#manifest.c
 		sdio.c
 		spi.cpp
 		timer_config.c

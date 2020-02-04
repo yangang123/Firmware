@@ -58,11 +58,9 @@
 #include "board_config.h"
 
 /* Define CS GPIO array */
-static constexpr uint32_t spi1selects_gpio[] = PX4_SENSOR_BUS_CS_GPIO;
-static constexpr uint32_t spi2selects_gpio[] = PX4_MEMORY_BUS_CS_GPIO;
-static constexpr uint32_t spi4selects_gpio[] = PX4_BARO_BUS_CS_GPIO;
-static constexpr uint32_t spi5selects_gpio[] = PX4_EXTERNAL1_BUS_CS_GPIO;
-static constexpr uint32_t spi6selects_gpio[] = PX4_EXTERNAL2_BUS_CS_GPIO;
+static constexpr uint32_t spi2selects_gpio[] = PX4_BARO_BUS_CS_GPIO;
+static constexpr uint32_t spi4selects_gpio[] = PX4_SENSOR_BUS_CS_GPIO;
+static constexpr uint32_t spi5selects_gpio[] = PX4_EXTERNAL2_BUS_CS_GPIO;
 
 /************************************************************************************
  * Name: stm32_spiinitialize
@@ -157,10 +155,10 @@ __EXPORT uint8_t stm32_spi1status(FAR struct spi_dev_s *dev, uint32_t devid)
 __EXPORT void stm32_spi2select(FAR struct spi_dev_s *dev, uint32_t devid, bool selected)
 {
 	if (devid == SPIDEV_FLASH(0)) {
-		devid = PX4_SPIDEV_MEMORY;
+		devid = PX4_SPI_BUS_BARO;
 	}
 
-	ASSERT(PX4_SPI_BUS_ID(devid) == PX4_SPI_BUS_MEMORY);
+	ASSERT(PX4_SPI_BUS_ID(devid) == PX4_SPI_BUS_BARO);
 
 	// Making sure the other peripherals are not selected
 	for (auto cs : spi2selects_gpio) {
@@ -268,26 +266,14 @@ __EXPORT uint8_t stm32_spi6status(FAR struct spi_dev_s *dev, uint32_t devid)
 
 __EXPORT void board_spi_reset(int ms)
 {
-	// disable SPI bus
-	for (auto cs : spi1selects_gpio) {
-		stm32_configgpio(_PIN_OFF(cs));
-	}
-
-	stm32_configgpio(GPIO_SPI1_SCK_OFF);
-	stm32_configgpio(GPIO_SPI1_MISO_OFF);
-	stm32_configgpio(GPIO_SPI1_MOSI_OFF);
 
 
-#if BOARD_USE_DRDY
-	stm32_configgpio(GPIO_DRDY_OFF_SPI1_DRDY1_ICM20689);
-	stm32_configgpio(GPIO_DRDY_OFF_SPI1_DRDY2_BMI088_GYRO);
-	stm32_configgpio(GPIO_DRDY_OFF_SPI1_DRDY3_BMI088_ACC);
-	stm32_configgpio(GPIO_DRDY_OFF_SPI1_DRDY4_ICM20602);
-	stm32_configgpio(GPIO_DRDY_OFF_SPI1_DRDY5_BMI088_GYRO);
-	stm32_configgpio(GPIO_DRDY_OFF_SPI1_DRDY6_BMI088_ACC);
-#endif
-	/* set the sensor rail off */
-	stm32_gpiowrite(GPIO_VDD_3V3_SENSORS_EN, 0);
+
+
+
+
+
+
 
 	/* wait for the sensor rail to reach GND */
 	usleep(ms * 1000);
@@ -295,27 +281,14 @@ __EXPORT void board_spi_reset(int ms)
 
 	/* re-enable power */
 
-	/* switch the sensor rail back on */
-	stm32_gpiowrite(GPIO_VDD_3V3_SENSORS_EN, 1);
+
+
 
 	/* wait a bit before starting SPI, different times didn't influence results */
 	usleep(100);
 
-	/* reconfigure the SPI pins */
-	for (auto cs : spi1selects_gpio) {
-		stm32_configgpio(cs);
-	}
 
-	stm32_configgpio(GPIO_SPI1_SCK);
-	stm32_configgpio(GPIO_SPI1_MISO);
-	stm32_configgpio(GPIO_SPI1_MOSI);
 
-#if BOARD_USE_DRDY
-	stm32_configgpio(GPIO_SPI1_DRDY1_ICM20689);
-	stm32_configgpio(GPIO_SPI1_DRDY2_BMI055_GYRO);
-	stm32_configgpio(GPIO_SPI1_DRDY3_BMI055_ACC);
-	stm32_configgpio(GPIO_SPI1_DRDY4_ICM20602);
-	stm32_configgpio(GPIO_SPI1_DRDY5_BMI055_GYRO);
-	stm32_configgpio(GPIO_SPI1_DRDY6_BMI055_ACC);
-#endif
+
+
 }
