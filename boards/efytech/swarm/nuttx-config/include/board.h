@@ -53,9 +53,9 @@
  ************************************************************************************/
 
 /* Clocking *************************************************************************/
-/* The holybro durandal v1  board provides the following clock sources:
+/* The efy tech   board provides the following clock sources:
  *
- *   X1: 16 MHz crystal for HSE
+ *   X1: 25 MHz crystal for HSE
  *
  * So we have these clock source available within the STM32
  *
@@ -63,7 +63,7 @@
  *   HSE: 16 MHz crystal for HSE
  */
 
-#define STM32_BOARD_XTAL        16000000ul
+#define STM32_BOARD_XTAL        25000000ul
 
 #define STM32_HSI_FREQUENCY     16000000ul
 #define STM32_LSI_FREQUENCY     32000
@@ -109,13 +109,13 @@
 				 RCC_PLLCFGR_DIVP1EN | \
 				 RCC_PLLCFGR_DIVQ1EN | \
 				 RCC_PLLCFGR_DIVR1EN)
-#define STM32_PLLCFG_PLL1M       RCC_PLLCKSELR_DIVM1(1)
-#define STM32_PLLCFG_PLL1N       RCC_PLL1DIVR_N1(60)
+#define STM32_PLLCFG_PLL1M       RCC_PLLCKSELR_DIVM1(5)
+#define STM32_PLLCFG_PLL1N       RCC_PLL1DIVR_N1(192)
 #define STM32_PLLCFG_PLL1P       RCC_PLL1DIVR_P1(2)
 #define STM32_PLLCFG_PLL1Q       RCC_PLL1DIVR_Q1(4)
 #define STM32_PLLCFG_PLL1R       RCC_PLL1DIVR_R1(8)
 
-#define STM32_VCO1_FREQUENCY     ((STM32_HSE_FREQUENCY / 1) * 60)
+#define STM32_VCO1_FREQUENCY     ((STM32_HSE_FREQUENCY / 5) * 192)
 #define STM32_PLL1P_FREQUENCY    (STM32_VCO1_FREQUENCY / 2)
 #define STM32_PLL1Q_FREQUENCY    (STM32_VCO1_FREQUENCY / 4)
 #define STM32_PLL1R_FREQUENCY    (STM32_VCO1_FREQUENCY / 8)
@@ -127,13 +127,13 @@
 				  RCC_PLLCFGR_DIVP2EN | \
 				  RCC_PLLCFGR_DIVQ2EN | \
 				  RCC_PLLCFGR_DIVR2EN)
-#define STM32_PLLCFG_PLL2M       RCC_PLLCKSELR_DIVM2(4)
-#define STM32_PLLCFG_PLL2N       RCC_PLL2DIVR_N2(48)
+#define STM32_PLLCFG_PLL2M       RCC_PLLCKSELR_DIVM2(1)
+#define STM32_PLLCFG_PLL2N       RCC_PLL2DIVR_N2(8)
 #define STM32_PLLCFG_PLL2P       RCC_PLL2DIVR_P2(2)
 #define STM32_PLLCFG_PLL2Q       RCC_PLL2DIVR_Q2(2)
 #define STM32_PLLCFG_PLL2R       RCC_PLL2DIVR_R2(2)
 
-#define STM32_VCO2_FREQUENCY     ((STM32_HSE_FREQUENCY / 4) * 48)
+#define STM32_VCO2_FREQUENCY     ((STM32_HSE_FREQUENCY / 1) * 8)
 #define STM32_PLL2P_FREQUENCY    (STM32_VCO2_FREQUENCY / 2)
 #define STM32_PLL2Q_FREQUENCY    (STM32_VCO2_FREQUENCY / 2)
 #define STM32_PLL2R_FREQUENCY    (STM32_VCO2_FREQUENCY / 2)
@@ -143,13 +143,13 @@
 #define STM32_PLLCFG_PLL3CFG    (RCC_PLLCFGR_PLL3VCOSEL_WIDE | \
 				 RCC_PLLCFGR_PLL3RGE_4_8_MHZ | \
 				 RCC_PLLCFGR_DIVQ3EN)
-#define STM32_PLLCFG_PLL3M      RCC_PLLCKSELR_DIVM3(4)
-#define STM32_PLLCFG_PLL3N      RCC_PLL3DIVR_N3(48)
+#define STM32_PLLCFG_PLL3M      RCC_PLLCKSELR_DIVM3(1)
+#define STM32_PLLCFG_PLL3N      RCC_PLL3DIVR_N3(8)
 #define STM32_PLLCFG_PLL3P      RCC_PLL3DIVR_P3(2)
 #define STM32_PLLCFG_PLL3Q      RCC_PLL3DIVR_Q3(4)
 #define STM32_PLLCFG_PLL3R      RCC_PLL3DIVR_R3(2)
 
-#define STM32_VCO3_FREQUENCY    ((STM32_HSE_FREQUENCY / 4) * 48)
+#define STM32_VCO3_FREQUENCY    ((STM32_HSE_FREQUENCY / 1) * 8)
 #define STM32_PLL3P_FREQUENCY   (STM32_VCO3_FREQUENCY / 2)
 #define STM32_PLL3Q_FREQUENCY   (STM32_VCO3_FREQUENCY / 4)
 #define STM32_PLL3R_FREQUENCY   (STM32_VCO3_FREQUENCY / 2)
@@ -350,27 +350,21 @@
 
 #define GPIO_USART2_RX   GPIO_USART2_RX_2      /* PD6 */
 #define GPIO_USART2_TX   GPIO_USART2_TX_2      /* PD5 */
-#define GPIO_USART2_RTS  GPIO_USART2_RTS_2     /* PD4 */
-#define GPIO_USART2_CTS  GPIO_USART2_CTS_NSS_2 /* PD3 */
 
-#define GPIO_USART3_RX   GPIO_USART3_RX_3      /* PD9  */
-#define GPIO_USART3_TX   GPIO_USART3_TX_3      /* PD8  */
-#define GPIO_USART3_RTS  GPIO_USART3_RTS_2     /* PD12 */
-#define GPIO_USART3_CTS  GPIO_USART3_CTS_NSS_2 /* PD11 */
+#define GPIO_USART3_RX   GPIO_USART3_RX_1      /* PB11  */
+#define GPIO_USART3_TX   GPIO_USART3_TX_1      /* PB10  */
 
 #define GPIO_UART4_RX    GPIO_UART4_RX_5       /* PD0 */
 #define GPIO_UART4_TX    GPIO_UART4_TX_5       /* PD1 */
 
-#define GPIO_USART6_RX   GPIO_USART6_RX_2      /* PG9  */
-#define GPIO_USART6_TX   GPIO_USART6_TX_2      /* PG14 */
-#define GPIO_USART6_RTS  GPIO_USART6_RTS_2     /* PG8  */
-#define GPIO_USART6_CTS  GPIO_USART6_CTS_NSS_2 /* PG15 */
+#define GPIO_USART6_RX   GPIO_USART6_RX_1      /* PC7  */
+#define GPIO_USART6_TX   GPIO_USART6_TX_1      /* PC6 */
 
-#define GPIO_UART7_RX    GPIO_UART7_RX_4       /* PF6 */
+#define GPIO_UART7_RX    GPIO_UART7_RX_3       /* PE7 */
 #define GPIO_UART7_TX    GPIO_UART7_TX_3       /* PE8 */
 
-#define GPIO_UART8_RX    GPIO_UART8_RX_1       /* PE0 */
-#define GPIO_UART8_TX    GPIO_UART8_TX_1       /* PE1 */
+#define GPIO_UART8_RX    GPIO_UART8_RX_2       /* PJ9 */
+#define GPIO_UART8_TX    GPIO_UART8_TX_2       /* PJ8 */
 
 /* UART RX DMA configurations */
 
@@ -382,17 +376,22 @@
  * CAN1 is routed to transceiver.
  * CAN2 is routed to transceiver.
  */
-#define GPIO_CAN1_RX     GPIO_CAN1_RX_5        /* PI9  */
+#define GPIO_CAN1_RX     GPIO_CAN1_RX_4        /* PH14  */
 #define GPIO_CAN1_TX     GPIO_CAN1_TX_4        /* PH13 */
 #define GPIO_CAN2_RX     GPIO_CAN2_RX_1        /* PB12 */
 #define GPIO_CAN2_TX     GPIO_CAN2_TX_1        /* PB13 */
 
 /* SPI
- * SPI1 sensors
- * SPI2 is FRAM.
- * SPI4 is BARO
- * SPI6 Reserved
+ * QuadSPI  is flash.
+ * SPI2 is baro.
+ * SPI4 is board imu.
+ * SPI5 is reserved.
  */
+#define GPIO_QUADSPI_CLK GPIO_QUADSPI_CLK_2 /*PF10*/
+#define GPIO_QUADSPI_IO0 GPIO_QUADSPI_BK1_IO0_1
+#define GPIO_QUADSPI_IO1 GPIO_QUADSPI_BK1_IO1_1
+#define GPIO_QUADSPI_IO2 GPIO_QUADSPI_BK1_IO2_2
+#define GPIO_QUADSPI_IO3 GPIO_QUADSPI_BK1_IO3_3
 
 #define GPIO_SPI1_MISO   GPIO_SPI1_MISO_1   /* PA6 */
 #define GPIO_SPI1_MOSI   GPIO_SPI1_MOSI_3   /* PD7 */
@@ -402,17 +401,13 @@
 #define GPIO_SPI2_MOSI   GPIO_SPI2_MOSI_4   /* PI3 */
 #define GPIO_SPI2_SCK    GPIO_SPI2_SCK_6    /* PI1 */
 
-#define GPIO_SPI4_MISO   GPIO_SPI4_MISO_1   /* PE13 */
+#define GPIO_SPI4_MISO   GPIO_SPI4_MISO_2   /* PE5 */
 #define GPIO_SPI4_MOSI   GPIO_SPI4_MOSI_2   /* PE6 */
 #define GPIO_SPI4_SCK    GPIO_SPI4_SCK_2    /* PE2 */
 
-#define GPIO_SPI5_MISO   GPIO_SPI5_MISO_1   /* PF8 */
-#define GPIO_SPI5_MOSI   GPIO_SPI5_MOSI_2   /* PF9 */
-#define GPIO_SPI5_SCK    GPIO_SPI5_SCK_1    /* PF7 */
-
-#define GPIO_SPI6_MISO   GPIO_SPI6_MISO_1   /* PG12 */
-#define GPIO_SPI6_MOSI   GPIO_SPI6_MOSI_3   /* PB5 */
-#define GPIO_SPI6_SCK    GPIO_SPI6_SCK_1    /* PG13 */
+#define GPIO_SPI5_MISO   GPIO_SPI5_MISO_3   /* PJ11 */
+#define GPIO_SPI5_MOSI   GPIO_SPI5_MOSI_3   /* PJ10 */
+#define GPIO_SPI5_SCK    GPIO_SPI5_SCK_3    /* PK0 */
 
 /* I2C
  *
@@ -425,17 +420,6 @@
  *
  */
 
-#define GPIO_I2C1_SCL GPIO_I2C1_SCL_2       /* PB8  */
-#define GPIO_I2C1_SDA GPIO_I2C1_SDA_2       /* PB9  */
-
-#define GPIO_I2C1_SCL_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTB | GPIO_PIN8)
-#define GPIO_I2C1_SDA_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTB | GPIO_PIN9)
-
-#define GPIO_I2C2_SCL GPIO_I2C2_SCL_2       /* PF1 */
-#define GPIO_I2C2_SDA GPIO_I2C2_SDA_2       /* PF0 */
-
-#define GPIO_I2C2_SCL_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTF | GPIO_PIN1)
-#define GPIO_I2C2_SDA_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTF | GPIO_PIN0)
 
 #define GPIO_I2C3_SCL GPIO_I2C3_SCL_2       /* PH7 */
 #define GPIO_I2C3_SDA GPIO_I2C3_SDA_2       /* PH8 */
@@ -443,11 +427,11 @@
 #define GPIO_I2C3_SCL_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTH | GPIO_PIN7)
 #define GPIO_I2C3_SDA_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN |GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTH | GPIO_PIN8)
 
-#define GPIO_I2C4_SCL GPIO_I2C4_SCL_2       /* PF14 */
-#define GPIO_I2C4_SDA GPIO_I2C4_SDA_2       /* PF15 */
+#define GPIO_I2C4_SCL GPIO_I2C4_SCL_3       /* PH11 */
+#define GPIO_I2C4_SDA GPIO_I2C4_SDA_3       /* PH12 */
 
-#define GPIO_I2C4_SCL_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN | GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTF | GPIO_PIN14)
-#define GPIO_I2C4_SDA_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN | GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTF | GPIO_PIN15)
+#define GPIO_I2C4_SCL_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN | GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTH | GPIO_PIN11)
+#define GPIO_I2C4_SDA_GPIO                  (GPIO_OUTPUT | GPIO_OPENDRAIN | GPIO_SPEED_50MHz | GPIO_OUTPUT_SET | GPIO_PORTH | GPIO_PIN12)
 
 /* SDMMC1
  *
