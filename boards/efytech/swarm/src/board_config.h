@@ -161,103 +161,36 @@
 */
 #define GPIO_HEATER_OUTPUT   /* PA7  T14CH1 */ (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTC|GPIO_PIN2)
 
-/* PWM Capture
- *
- * 6  PWM Capture inputs are configured.
- *
- * Pins:
- *
- * FMU_CAP1 : PB11 : TIM2_CH4
- * FMU_CAP2 : PB3  : TIM2_CH2
- * FMU_CAP3 : PA5  : TIM2_CH1
- * FMU_CAP4 : PH9  : TIM12_CH2
- * FMU_CAP5 : PH6  : TIM12_CH1
- * FMU_CAP6 : PD14 : TIM4_CH3
- */
+/* ESC FIRE RGB
+* 4-way pwm for esc PA6 PA7 PB0 PB1
+* 4-way pwm for rgbd
+* 4-way pwm for fire
+*/
+#define GPIO_TIM3_CH1OUT      /* PA6   T3C1   efy tech */ GPIO_TIM3_CH1OUT_1
+#define GPIO_TIM3_CH2OUT      /* PA7   T3C2   efy tech */ GPIO_TIM3_CH2OUT_1
+#define GPIO_TIM3_CH3OUT      /* PB0   T3C3   efy tech */ GPIO_TIM3_CH3OUT_1
+#define GPIO_TIM3_CH4OUT      /* PB1   T3C4   efy tech */ GPIO_TIM3_CH4OUT_1
 
+#define GPIO_TIM2_CH1OUT      /* PA5   T2C1   efy tech */ GPIO_TIM2_CH1OUT_3
+#define GPIO_TIM2_CH2OUT      /* PA1   T2C2   efy tech */ GPIO_TIM2_CH2OUT_1
+#define GPIO_TIM2_CH3OUT      /* PA2   T2C3   efy tech */ GPIO_TIM2_CH3OUT_1
+#define GPIO_TIM2_CH4OUT      /* PA3   T2C4   efy tech */ GPIO_TIM2_CH4OUT_1
 
+#define GPIO_TIM4_CH1OUT      /* PD12  T4C1   efy tech */ GPIO_TIM4_CH1OUT_2
+#define GPIO_TIM4_CH2OUT      /* PD13  T4C2   efy tech */ GPIO_TIM4_CH2OUT_2
+#define GPIO_TIM4_CH3OUT      /* PD14  T4C3   efy tech */ GPIO_TIM4_CH3OUT_2
+#define GPIO_TIM4_CH4OUT      /* PD15  T4C4   efy tech */ GPIO_TIM4_CH4OUT_2
 
-/* PWM
- *
- * 5  PWM outputs are configured.
- *
- * Pins:
- *
- * FMU_CH1 : PE14 : TIM1_CH4
- * FMU_CH2 : PA10 : TIM1_CH3
- * FMU_CH3 : PE11 : TIM1_CH2
- * FMU_CH4 : PE9  : TIM1_CH1
- * FMU_CH5 : PD13 : TIM4_CH2
- *
- */
-#define GPIO_TIM4_CH2OUT      /* PD13  T4C2   FMU5 */ GPIO_TIM4_CH2OUT_2
-#define GPIO_TIM1_CH1OUT      /* PE9   T1C1   FMU4 */ GPIO_TIM1_CH1OUT_2
-#define GPIO_TIM1_CH2OUT      /* PE11  T1C2   FMU3 */ GPIO_TIM1_CH2OUT_2
-#define GPIO_TIM1_CH3OUT      /* PA10  T1C3   FMU2 */ GPIO_TIM1_CH3OUT_1
-#define GPIO_TIM1_CH4OUT      /* PE14  T1C4   FMU1 */ GPIO_TIM1_CH4OUT_2
 
 #define DIRECT_PWM_OUTPUT_CHANNELS  12
 
-#define GPIO_TIM4_CH2IN       /* PD13  T4C2   FMU5 */ GPIO_TIM4_CH2IN_2
-#define GPIO_TIM1_CH1IN       /* PE9   T1C1   FMU4 */ GPIO_TIM1_CH1IN_2
-#define GPIO_TIM1_CH2IN       /* PE11  T1C2   FMU3 */ GPIO_TIM1_CH2IN_2
-#define GPIO_TIM1_CH3IN       /* PA10  T1C3   FMU2 */ GPIO_TIM1_CH3IN_1
-#define GPIO_TIM1_CH4IN       /* PE14  T1C4   FMU1 */ GPIO_TIM1_CH4IN_2
-
-#define DIRECT_INPUT_TIMER_CHANNELS  0
 
 
-/* User GPIOs
- *
- * GPIO0-4 are the PWM servo outputs.
- */
-
-#define _MK_GPIO_INPUT(def) (((def) & (GPIO_PORT_MASK | GPIO_PIN_MASK)) | (GPIO_INPUT|GPIO_PULLUP))
-
-#define GPIO_GPIO4_INPUT        /* PD13  T4C2   FMU5 */ _MK_GPIO_INPUT(GPIO_TIM4_CH2IN)
-#define GPIO_GPIO3_INPUT        /* PE9   T1C1   FMU4 */ _MK_GPIO_INPUT(GPIO_TIM1_CH1IN)
-#define GPIO_GPIO2_INPUT        /* PE11  T1C2   FMU3 */ _MK_GPIO_INPUT(GPIO_TIM1_CH2IN)
-#define GPIO_GPIO1_INPUT        /* PA10  T1C3   FMU2 */ _MK_GPIO_INPUT(GPIO_TIM1_CH3IN)
-#define GPIO_GPIO0_INPUT        /* PE14  T1C4   FMU1 */ _MK_GPIO_INPUT(GPIO_TIM1_CH4IN)
-
-#define _MK_GPIO_OUTPUT(def) (((def) & (GPIO_PORT_MASK | GPIO_PIN_MASK)) | (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR))
-
-#define GPIO_GPIO4_OUTPUT        /* PD13  T4C2   FMU5 */ _MK_GPIO_OUTPUT(GPIO_TIM4_CH2OUT)
-#define GPIO_GPIO3_OUTPUT        /* PE9   T1C1   FMU4 */ _MK_GPIO_OUTPUT(GPIO_TIM1_CH1OUT)
-#define GPIO_GPIO2_OUTPUT        /* PE11  T1C2   FMU3 */ _MK_GPIO_OUTPUT(GPIO_TIM1_CH2OUT)
-#define GPIO_GPIO1_OUTPUT        /* PA10  T1C3   FMU2 */ _MK_GPIO_OUTPUT(GPIO_TIM1_CH3OUT)
-#define GPIO_GPIO0_OUTPUT        /* PE14  T1C4   FMU1 */ _MK_GPIO_OUTPUT(GPIO_TIM1_CH4OUT)
-
-
-/* Power supply control and monitoring GPIOs */
-
-// #define GPIO_nPOWER_IN_A                /* PG1  */ (GPIO_INPUT|GPIO_PULLUP|GPIO_PORTG|GPIO_PIN1)
-// #define GPIO_nPOWER_IN_B                /* PG2  */ (GPIO_INPUT|GPIO_PULLUP|GPIO_PORTG|GPIO_PIN2)
-// #define GPIO_nPOWER_IN_C                /* PG3  */ (GPIO_INPUT|GPIO_PULLUP|GPIO_PORTG|GPIO_PIN3)
 
 #define BOARD_NUMBER_BRICKS             0
 
-// #define GPIO_nVDD_5V_PERIPH_EN          /* PG4  */ (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_SET|GPIO_PORTG|GPIO_PIN4)
-// #define GPIO_nVDD_5V_PERIPH_OC          /* PE15 */ (GPIO_INPUT |GPIO_FLOAT|GPIO_PORTE|GPIO_PIN15)
-// #define GPIO_nVDD_5V_HIPOWER_EN         /* PF12 */ (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_SET|GPIO_PORTF|GPIO_PIN12)
-// #define GPIO_nVDD_5V_HIPOWER_OC         /* PG13 */ (GPIO_INPUT |GPIO_FLOAT|GPIO_PORTF|GPIO_PIN13)
-// #define GPIO_VDD_3V3_SENSORS_EN         /* PE3  */ (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTE|GPIO_PIN3)
-// #define GPIO_VDD_3V3_SPEKTRUM_POWER_EN  /* PE4  */ (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTE|GPIO_PIN4)
-// #define GPIO_VDD_3V3_SD_CARD_EN         /* PG7  */ (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTG|GPIO_PIN7)
 
 
-/* Define True logic Power Control in arch agnostic form */
-
-
-/* Tone alarm output */
-
-// #define TONE_ALARM_TIMER        15  /* timer 15 */
-// #define TONE_ALARM_CHANNEL      1  /* PE5 TIM15_CH1 */
-
-// #define GPIO_BUZZER_1           /* PE5 */ (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_2MHz|GPIO_OUTPUT_CLEAR|GPIO_PORTE|GPIO_PIN5)
-
-// #define GPIO_TONE_ALARM_IDLE    GPIO_BUZZER_1
-// #define GPIO_TONE_ALARM         GPIO_TIM15_CH1OUT_2
 
 /* USB OTG FS
  *
@@ -272,42 +205,6 @@
 /* RC Serial port */
 
 /* Input Capture Channels. */
-
-#define INPUT_CAP1_TIMER                  2
-#define INPUT_CAP1_CHANNEL     /* T2C4 */ 4
-#define GPIO_INPUT_CAP1        /* PB11 */ GPIO_TIM2_CH4_IN
-
-#define INPUT_CAP2_TIMER                  2
-#define INPUT_CAP2_CHANNEL     /* T2C2 */ 2
-#define GPIO_INPUT_CAP2        /*  PB3 */ GPIO_TIM2_CH2_IN
-
-#define INPUT_CAP3_TIMER                  2
-#define INPUT_CAP3_CHANNEL     /* T2C1 */ 1
-#define GPIO_INPU3_CAP1        /*  PA5 */ GPIO_TIM2_CH1_IN
-
-#define INPUT_CAP4_TIMER                  12
-#define INPUT_CAP4_CHANNEL     /* T12C2*/ 2
-#define GPIO_INPUT_CAP4        /* PH9  */ GPIO_TIM12_CH2_IN
-
-#define INPUT_CAP5_TIMER                  12
-#define INPUT_CAP5_CHANNEL     /* T12C1*/ 1
-#define GPIO_INPUT_CAP5        /* PH6  */ GPIO_TIM12_CH1_IN
-
-#define INPUT_CAP6_TIMER                  4
-#define INPUT_CAP6_CHANNEL     /* T4C3 */ 3
-#define GPIO_INPUT_CAP6        /* PD14 */ GPIO_TIM4_CH3_IN
-
-/* PWM input driver. Use FMU AUX5 pins attached to timer4 channel 2 */
-
-#define PWMIN_TIMER                       4
-#define PWMIN_TIMER_CHANNEL    /* T4C2 */ 2
-#define GPIO_PWM_IN            /* PD13 */ GPIO_TIM4_CH2IN
-
-
-
-
-
-
 
 #define SDIO_SLOTNO                    0  /* Only one slot */
 #define SDIO_MINOR                     0
@@ -343,17 +240,10 @@
 
 /* This board provides the board_on_reset interface */
 
-#define BOARD_HAS_ON_RESET 1
+#define BOARD_HAS_ON_RESET 0
 
 /* The list of GPIO that will be initialized */
 
-#define PX4_GPIO_PWM_INIT_LIST { \
-		GPIO_GPIO4_INPUT, \
-		GPIO_GPIO3_INPUT, \
-		GPIO_GPIO2_INPUT, \
-		GPIO_GPIO1_INPUT, \
-		GPIO_GPIO0_INPUT, \
-	}
 
 #define PX4_GPIO_INIT_LIST {\
 		GPIO_CAN1_TX,                     \
