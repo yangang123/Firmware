@@ -101,19 +101,8 @@ __END_DECLS
  ************************************************************************************/
 __EXPORT void board_peripheral_reset(int ms)
 {
-	/* set the peripheral rails off */
-
-
-	/* Keep Spektum on to discharge rail*/
-
-	/* wait for the peripheral rail to reach GND */
 	usleep(ms * 1000);
 	syslog(LOG_DEBUG, "reset done, %d ms\n", ms);
-
-	/* re-enable power */
-
-
-
 }
 
 /************************************************************************************
@@ -149,8 +138,6 @@ __EXPORT void board_on_reset(int status)
 __EXPORT void
 stm32_boardinitialize(void)
 {
-	board_on_reset(-1); /* Reset PWM first thing */
-
 	/* configure LEDs */
 
 	board_autoled_initialize();
