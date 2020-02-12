@@ -19,6 +19,8 @@ px4_add_board(
 		px4fmu
 		test_ppm
 		rc_input
+		magnetometer/ist8308
+		barometer/tcbp001ta
 	MODULES
 		airspeed_selector
 		attitude_estimator_q
