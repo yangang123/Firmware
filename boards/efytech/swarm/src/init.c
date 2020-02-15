@@ -244,3 +244,32 @@ __EXPORT int board_app_initialize(uintptr_t arg)
 
 	return OK;
 }
+
+__EXPORT void board_rc_input(bool invert_on, uint32_t uxart_base)
+{
+
+	irqstate_t irqstate = px4_enter_critical_section();
+
+	uint32_t cr1 =	getreg32(STM32_USART_CR1_OFFSET + uxart_base);
+	uint32_t cr2 =	getreg32(STM32_USART_CR2_OFFSET + uxart_base);
+	uint32_t regval = cr1;
+
+	/* {R|T}XINV bit fields can only be written when the USART is disabled (UE=0). */
+
+	regval &= ~USART_CR1_UE;
+
+	putreg32(regval, STM32_USART_CR1_OFFSET + uxart_base);
+
+	if (invert_on) {
+
+		cr2 |= (USART_CR2_RXINV | USART_CR2_TXINV);
+
+	} else {
+		cr2 &= ~(USART_CR2_RXINV | USART_CR2_TXINV);
+	}
+
+	putreg32(cr2, STM32_USART_CR2_OFFSET + uxart_base);
+	putreg32(cr1, STM32_USART_CR1_OFFSET + uxart_base);
+
+	leave_critical_section(irqstate);
+}
