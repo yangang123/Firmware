@@ -127,15 +127,15 @@ __EXPORT void stm32_spiinitialize()
 #ifdef CONFIG_STM32H7_SPI1
 __EXPORT void stm32_spi1select(FAR struct spi_dev_s *dev, uint32_t devid, bool selected)
 {
-	ASSERT(PX4_SPI_BUS_ID(devid) == PX4_SPI_BUS_SENSORS);
+	// ASSERT(PX4_SPI_BUS_ID(devid) == PX4_SPI_BUS_SENSORS);
 
-	// Making sure the other peripherals are not selected
-	for (auto cs : spi1selects_gpio) {
-		stm32_gpiowrite(cs, 1);
-	}
+	// // Making sure the other peripherals are not selected
+	// for (auto cs : spi1selects_gpio) {
+	// 	stm32_gpiowrite(cs, 1);
+	// }
 
-	// SPI select is active low, so write !selected to select the device
-	stm32_gpiowrite(spi1selects_gpio[PX4_SPI_DEV_ID(devid)], !selected);
+	// // SPI select is active low, so write !selected to select the device
+	// stm32_gpiowrite(spi1selects_gpio[PX4_SPI_DEV_ID(devid)], !selected);
 }
 
 __EXPORT uint8_t stm32_spi1status(FAR struct spi_dev_s *dev, uint32_t devid)
@@ -185,7 +185,7 @@ __EXPORT uint8_t stm32_spi2status(FAR struct spi_dev_s *dev, uint32_t devid)
 #ifdef CONFIG_STM32H7_SPI4
 __EXPORT void stm32_spi4select(FAR struct spi_dev_s *dev, uint32_t devid, bool selected)
 {
-	ASSERT(PX4_SPI_BUS_ID(devid) == PX4_SPI_BUS_BARO);
+	ASSERT(PX4_SPI_BUS_ID(devid) == PX4_SPI_BUS_SENSORS);
 
 	// Making sure the other peripherals are not selected
 	for (auto cs : spi4selects_gpio) {
