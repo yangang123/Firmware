@@ -8,8 +8,8 @@ px4_add_board(
 	DRIVERS
 		#barometer # all available barometer drivers
 		#batt_smbus
-		#camera_capture
-		#camera_trigger
+		camera_capture
+		camera_trigger
 		#differential_pressure # all available differential pressure drivers
 		#distance_sensor # all available distance sensor drivers
 		gps
@@ -48,6 +48,8 @@ px4_add_board(
 		temperature_compensation
 		vmount
 		vtol_att_control
+		uuv_att_control
+
 	SYSTEMCMDS
 		#config
 		#dumpfile
