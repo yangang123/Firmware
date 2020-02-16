@@ -167,24 +167,10 @@
 * 4-way pwm for rgbd
 * 4-way pwm for fire
 */
-#define GPIO_TIM3_CH1OUT      /* PA6   T3C1   efy tech */ GPIO_TIM3_CH1OUT_1
-#define GPIO_TIM3_CH2OUT      /* PA7   T3C2   efy tech */ GPIO_TIM3_CH2OUT_1
-#define GPIO_TIM3_CH3OUT      /* PB0   T3C3   efy tech */ GPIO_TIM3_CH3OUT_1
-#define GPIO_TIM3_CH4OUT      /* PB1   T3C4   efy tech */ GPIO_TIM3_CH4OUT_1
-
-#define GPIO_TIM2_CH1OUT      /* PA5   T2C1   efy tech */ GPIO_TIM2_CH1OUT_3
-#define GPIO_TIM2_CH2OUT      /* PA1   T2C2   efy tech */ GPIO_TIM2_CH2OUT_1
-#define GPIO_TIM2_CH3OUT      /* PA2   T2C3   efy tech */ GPIO_TIM2_CH3OUT_1
-#define GPIO_TIM2_CH4OUT      /* PA3   T2C4   efy tech */ GPIO_TIM2_CH4OUT_1
-
-#define GPIO_TIM4_CH1OUT      /* PD12  T4C1   efy tech */ GPIO_TIM4_CH1OUT_2
-#define GPIO_TIM4_CH2OUT      /* PD13  T4C2   efy tech */ GPIO_TIM4_CH2OUT_2
-#define GPIO_TIM4_CH3OUT      /* PD14  T4C3   efy tech */ GPIO_TIM4_CH3OUT_2
-#define GPIO_TIM4_CH4OUT      /* PD15  T4C4   efy tech */ GPIO_TIM4_CH4OUT_2
 
 
-#define DIRECT_PWM_OUTPUT_CHANNELS  12
-
+#define DIRECT_PWM_OUTPUT_CHANNELS  8
+#define DIRECT_INPUT_TIMER_CHANNELS 8
 
 
 
