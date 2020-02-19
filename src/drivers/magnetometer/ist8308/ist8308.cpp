@@ -1467,7 +1467,7 @@ ist8308_main(int argc, char *argv[])
 	 * Test the driver/device.
 	 */
 	if (!strcmp(verb, "test")) {
-		IST8308_BUS_I2C_EXTERNAL2::test(i2c_busid);
+		ist8308::test(i2c_busid);
 	}
 
 	/*

@@ -84,41 +84,41 @@ TCBP001TA::init()
 	// get calibration and pre process them
 	_cal = _interface->get_calibration(TCBP001TA_ADDR_CAL);
 
-	_fcal.c0 = (_cal.c0_h << 4) + ((_cal.c0l_1h >> 4) & 0x0F);
+	_fcal.c0 = (_cal->c0_h << 4) + ((_cal->c0l_1h >> 4) & 0x0F);
 	if(_fcal.c0 > POW_2_11_MINUS_1)
 		_fcal.c0 = _fcal.c0 - POW_2_12;
 
-	_fcal.c1 = (_cal.c1l + ((_cal.c0l_1h & 0x0F) << 8));
+	_fcal.c1 = (_cal->c1l + ((_cal->c0l_1h & 0x0F) << 8));
 	if(_fcal.c1 > POW_2_11_MINUS_1)
 		_fcal.c1 = _fcal.c1 - POW_2_12;
 
-	_fcal.c00 = ((_cal.c00m << 4) + (_cal.c00h << 12)) + ((_cal.c00l_10h >> 4) & 0x0F);
+	_fcal.c00 = ((_cal->c00m << 4) + (_cal->c00h << 12)) + ((_cal->c00l_10h >> 4) & 0x0F);
 	if(_fcal.c00 > POW_2_19_MINUS_1)
 		_fcal.c00 = _fcal.c00 - POW_2_20;
 
-	_fcal.c10 = ((_cal.c00l_10h & 0x0F) << 16) + _cal.c10l + (_cal.c10m << 8);
+	_fcal.c10 = ((_cal->c00l_10h & 0x0F) << 16) + _cal->c10l + (_cal->c10m << 8);
 	if(_fcal.c10 > POW_2_19_MINUS_1)
 		_fcal.c10 = _fcal.c10 - POW_2_20;
 
-	_fcal.c01 = (_cal.c01l + (_cal.c01h << 8));
-	if(_fcal.c01 > POW_2_15_MINUS_1)
-		_fcal.c01 = _fcal.c01 - POW_2_16;
+	_fcal.c01 = (_cal->c01l + (_cal->c01h << 8));
+	//if(_fcal.c01 > POW_2_15_MINUS_1)
+		//_fcal.c01 = _fcal.c01 - POW_2_16;
 
-	_fcal.c11 = (_cal.c11l + (_cal.c11h << 8));
-	if(_fcal.c11 > POW_2_15_MINUS_1)
-		_fcal.c11 = _fcal.c11 - POW_2_16;
+	_fcal.c11 = (_cal->c11l + (_cal->c11h << 8));
+	//if(_fcal.c11 > POW_2_15_MINUS_1)
+		//_fcal.c11 = _fcal.c11 - POW_2_16;
 
-	_fcal.c20 = (_cal.c20l + (_cal.c20h << 8));
-	if(_fcal.c20 > POW_2_15_MINUS_1)
-		_fcal.c20 = _fcal.c20 - POW_2_16;
+	_fcal.c20 = (_cal->c20l + (_cal->c20h << 8));
+	//if(_fcal.c20 > POW_2_15_MINUS_1)
+		//_fcal.c20 = _fcal.c20 - POW_2_16;
 
-	_fcal.c21 = (_cal.c21l + (_cal.c21h << 8));
-	if(_fcal.c21 > POW_2_15_MINUS_1)
-		_fcal.c21 = _fcal.c21 - POW_2_16;
+	_fcal.c21 = (_cal->c21l + (_cal->c21h << 8));
+	//if(_fcal.c21 > POW_2_15_MINUS_1)
+		//_fcal.c21 = _fcal.c21 - POW_2_16;
 
-	_fcal.c30 = (_cal.c30l + (_cal.c30h << 8));
-	if(_fcal.c30 > POW_2_15_MINUS_1)
-		_fcal.c30 = _fcal.c30 - POW_2_16;
+	_fcal.c30 = (_cal->c30l + (_cal->c30h << 8));
+	//if(_fcal.c30 > POW_2_15_MINUS_1)
+		//_fcal.c30 = _fcal.c30 - POW_2_16;
 
 	Start();
 
@@ -164,11 +164,11 @@ TCBP001TA::measure()
 	// start measure
 	//int ret = _interface->set_reg(_curr_ctrl | TCBP001TA_CTRL_MODE_FORCE, TCBP001TA_ADDR_CTRL);
 
-	if (ret != OK) {
-		perf_count(_comms_errors);
-		perf_cancel(_measure_perf);
-		return -EIO;
-	}
+	//if (ret != OK) {
+		//perf_count(_comms_errors);
+		//perf_cancel(_measure_perf);
+		//return -EIO;
+	//}
 
 	perf_end(_measure_perf);
 
@@ -198,15 +198,15 @@ TCBP001TA::collect()
 	// Temperature
 	double Traw_sc = (double)t_raw / (double)(tmp_osr_scale_coeff);
 
-        const float T =  (_fcal.C0 / 2.0f) + _fcal.C1 * Traw_sc;
+        const float T =  (_fcal.c0 / 2.0f) + (float)(_fcal.c1 * Traw_sc);
 
 	// Pressure
 	double Praw_sc = (double) p_raw / (double)(prs_osr_scale_coeff);
 
-        const float P = _fcal.C00 +
-			Praw_sc * (_fcal.C10 + Praw_sc * (_fcal.C20 + Praw_sc * _fcal.C30)) +
-			Praw_sc * _fcal.C01 +
-			Praw_sc * Praw_sc * (_fcal.C11 + Praw_sc * _fcal.C21);
+        const float P = _fcal.c00 +
+			Praw_sc * (_fcal.c10 + Praw_sc * (_fcal.c20 + Praw_sc * _fcal.c30)) +
+			Praw_sc * _fcal.c01 +
+			Praw_sc * Praw_sc * (_fcal.c11 + Praw_sc * _fcal.c21);
 
 	_px4_baro.set_error_count(perf_event_count(_comms_errors));
 	_px4_baro.set_temperature(T);
@@ -236,28 +236,28 @@ TCBP001TA::TCBP001TA_get_scaling_coef(uint8_t osr)
 
         switch (osr){
 
-              case OSR_1:
+              case 0:
                     scaling_coeff = 524288;
                     break;
-              case OSR_2:
+              case 1:
                     scaling_coeff = 1572864;
                     break;
-              case OSR_4:
+              case 2:
                     scaling_coeff = 3670016;
                     break;
-              case OSR_8:
+              case 3:
                     scaling_coeff = 7864320;
                     break;
-              case OSR_16:
+              case 4:
                     scaling_coeff = 253952;
                     break;
-              case OSR_32:
+              case 5:
                     scaling_coeff = 516096;
                     break;
-              case OSR_64:
+              case 6:
                     scaling_coeff = 1040384;
                     break;
-              case OSR_128:
+              case 7:
                     scaling_coeff = 2088960;
                     break;
               default:

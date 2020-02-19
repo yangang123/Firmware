@@ -87,7 +87,7 @@ static struct tcbp001ta_bus_option *find_bus(TCBP001TA_BUS busid)
 
 static bool start_bus(tcbp001ta_bus_option &bus)
 {
-	tcbp001ta::TCBP001TA *interface = bus.interface_constructor(bus.busnum, bus.address);
+	tcbp001ta::ITCBP001TA *interface = bus.interface_constructor(bus.busnum, bus.address);
 
 	if ((interface == nullptr) || (interface->init() != PX4_OK)) {
 		PX4_WARN("no device on bus %u", (unsigned)bus.busid);

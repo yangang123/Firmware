@@ -37,7 +37,7 @@
  * SPI interface for TCBP001TA
  */
 
-#include "tabp001ta.h"
+#include "tcbp001ta.h"
 
 #include <px4_platform_common/px4_config.h>
 #include <drivers/device/i2c.h>

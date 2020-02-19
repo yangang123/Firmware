@@ -130,15 +130,15 @@ struct data_s {
 #pragma pack(pop)
 
 struct fcalibration_s {
-  int16_t 	C0;	// 12bit
-  int16_t 	C1;	// 12bit
-  int32_t	C00;	// 20bit
-  int32_t   	C10;	// 20bit
-  int16_t 	C01;	// 16bit
-  int16_t	C11;	// 16bit
-  int16_t	C20;	// 16bit
-  int16_t	C21;	// 16bit
-  int16_t	C30;	// 16bit
+  int16_t 	c0;	// 12bit
+  int16_t 	c1;	// 12bit
+  int32_t	c00;	// 20bit
+  int32_t   	c10;	// 20bit
+  int16_t 	c01;	// 16bit
+  int16_t	c11;	// 16bit
+  int16_t	c20;	// 16bit
+  int16_t	c21;	// 16bit
+  int16_t	c30;	// 16bit
 };
 
 class ITCBP001TA
