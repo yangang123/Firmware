@@ -37,11 +37,8 @@
 #include "TCBP001TA.hpp"
 
 enum class TCBP001TA_BUS {
-	ALL = 0,
-	I2C_INTERNAL,
-	I2C_EXTERNAL,
-	SPI_INTERNAL,
-	SPI_EXTERNAL
+
+	SPI_INTERNAL = 0
 };
 
 namespace tcbp001ta
@@ -55,28 +52,16 @@ struct tcbp001ta_bus_option {
 	uint32_t address;
 	TCBP001TA	*dev;
 } bus_options[] = {
-#if defined(PX4_SPI_BUS_EXT) && defined(PX4_SPIDEV_EXT_BARO)
-	{ TCBP001TA_BUS::SPI_EXTERNAL, &tcbp001ta_spi_interface, PX4_SPI_BUS_EXT, PX4_SPIDEV_EXT_BARO, nullptr },
-#endif
-#if defined(PX4_SPIDEV_BARO_BUS) && defined(PX4_SPIDEV_BARO)
-	{ TCBP001TA_BUS::SPI_INTERNAL, &tcbp001ta_spi_interface, PX4_SPIDEV_BARO_BUS, PX4_SPIDEV_BARO, nullptr },
-#elif defined(PX4_SPI_BUS_SENSORS) && defined(PX4_SPIDEV_BARO)
-	{ TCBP001TA_BUS::SPI_INTERNAL, &tcbp001ta_spi_interface, PX4_SPI_BUS_SENSORS, PX4_SPIDEV_BARO, nullptr },
-#endif
-#if defined(PX4_I2C_BUS_ONBOARD) && defined(PX4_I2C_OBDEV_TCBP001TA)
-	{ TCBP001TA_BUS::I2C_INTERNAL, &tcbp001ta_i2c_interface, PX4_I2C_BUS_ONBOARD, PX4_I2C_OBDEV_TCBP001TA, nullptr },
-#endif
-#if defined(PX4_I2C_BUS_EXPANSION) && defined(PX4_I2C_OBDEV_TCBP001TA)
-	{ TCBP001TA_BUS::I2C_EXTERNAL, &tcbp001ta_i2c_interface, PX4_I2C_BUS_EXPANSION, PX4_I2C_OBDEV_TCBP001TA, nullptr },
-#endif
+
+	{ TCBP001TA_BUS::SPI_INTERNAL, &tcbp001ta_spi_interface, PX4_SPI_BUS_BARO, PX4_SPIDEV_BARO, nullptr },
 };
 
 // find a bus structure for a busid
 static struct tcbp001ta_bus_option *find_bus(TCBP001TA_BUS busid)
 {
 	for (tcbp001ta_bus_option &bus_option : bus_options) {
-		if ((busid == TCBP001TA_BUS::ALL ||
-		     busid == bus_option.busid) && bus_option.dev != nullptr) {
+		if ((
+			    busid == bus_option.busid) && bus_option.dev != nullptr) {
 
 			return &bus_option;
 		}
@@ -123,7 +108,7 @@ static int start(TCBP001TA_BUS busid)
 			continue;
 		}
 
-		if (busid != TCBP001TA_BUS::ALL && bus_option.busid != busid) {
+		if (bus_option.busid != busid) {
 			// not the one that is asked for
 			continue;
 		}
@@ -182,41 +167,22 @@ static int usage()
 extern "C" int tcbp001ta_main(int argc, char *argv[])
 {
 	int myoptind = 1;
-	int ch;
-	const char *myoptarg = nullptr;
+	// int ch;
+	// const char *myoptarg = nullptr;
 
-	TCBP001TA_BUS busid = TCBP001TA_BUS::ALL;
+	TCBP001TA_BUS busid;
+	busid = TCBP001TA_BUS::SPI_INTERNAL;
 
-	while ((ch = px4_getopt(argc, argv, "XISs:", &myoptind, &myoptarg)) != EOF) {
-		switch (ch) {
-		case 'X':
-			busid = TCBP001TA_BUS::I2C_EXTERNAL;
-			break;
 
-		case 'I':
-			busid = TCBP001TA_BUS::I2C_INTERNAL;
-			break;
 
-		case 'S':
-			busid = TCBP001TA_BUS::SPI_EXTERNAL;
-			break;
-
-		case 's':
-			busid = TCBP001TA_BUS::SPI_INTERNAL;
-			break;
-
-		default:
-			return tcbp001ta::usage();
-		}
-	}
-
-	if (myoptind >= argc) {
-		return tcbp001ta::usage();
-	}
+	// if (myoptind >= argc) {
+	// 	return tcbp001ta::usage();
+	// }
 
 	const char *verb = argv[myoptind];
 
 	if (!strcmp(verb, "start")) {
+		PX4_INFO("start");
 		return tcbp001ta::start(busid);
 
 	} else if (!strcmp(verb, "stop")) {
