@@ -114,12 +114,14 @@ I2C::init()
 	// abort if the max frequency we allow (the frequency we ask)
 	// is smaller than the bus frequency
 	if (_bus_clocks[bus_index] > _frequency) {
-		(void)px4_i2cbus_uninitialize(_dev);
-		_dev = nullptr;
-		DEVICE_LOG("FAIL: too slow for bus #%u: %u KHz, device max: %u KHz)",
-			   get_device_bus(), _bus_clocks[bus_index] / 1000, _frequency / 1000);
-		ret = -EINVAL;
-		goto out;
+		// (void)px4_i2cbus_uninitialize(_dev);
+		// _dev = nullptr;
+		// DEVICE_LOG("FAIL: too slow for bus #%u: %u KHz, device max: %u KHz)",
+		// 	   get_device_bus(), _bus_clocks[bus_index] / 1000, _frequency / 1000);
+
+		_bus_clocks[bus_index] = _frequency;
+		// ret = -EINVAL;
+		// goto out;
 	}
 
 	// set frequency for this instance once to the bus speed
