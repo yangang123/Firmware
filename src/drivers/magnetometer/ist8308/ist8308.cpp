@@ -442,11 +442,9 @@ IST8308::init()
 	reset();
 
 	_class_instance = register_class_devname(MAG_BASE_DEVICE_PATH);
-	PX4_INFO("mag");
 	ret = OK;
 	/* sensor is ok, but not calibrated */
 	_sensor_ok = true;
-	PX4_INFO("mag ret %d sensor ok %d", ret, _sensor_ok);
 out:
 	return ret;
 }
@@ -1176,12 +1174,10 @@ start_bus(struct ist8308_bus_option &bus, int address, enum Rotation rotation)
 	}
 
 	bus.dev = interface;
-	PX4_INFO("path %s", bus.devpath);
 	int fd = open(bus.devpath, O_RDONLY);
 
 	if (fd < 0) {
 		return false;
-		PX4_INFO("fd xiaoyu 0");
 	}
 
 	if (ioctl(fd, SENSORIOCSPOLLRATE, SENSOR_POLLRATE_DEFAULT) < 0) {
@@ -1218,7 +1214,6 @@ start(enum IST8308_BUS busid, int address, enum Rotation rotation)
 		}
 
 		started |= start_bus(bus_options[i], address, rotation);
-		PX4_INFO("start %d", started);
 	}
 
 	if (!started) {
