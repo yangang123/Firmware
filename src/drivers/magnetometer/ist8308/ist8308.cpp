@@ -86,7 +86,7 @@
  * The datasheet gives 200Hz maximum measurement rate, but it's not true according to tech support from iSentek*/
 #define IST8308_CONVERSION_INTERVAL	(1000000 / 100) /* microseconds */
 
-#define IST8308_BUS_I2C_ADDR		0xE
+#define IST8308_BUS_I2C_ADDR		0xC
 #define IST8308_DEFAULT_BUS_SPEED	400000
 
 /*
@@ -184,7 +184,6 @@ enum IST8308_BUS {
 	IST8308_BUS_I2C_EXTERNAL  = 1,
 	IST8308_BUS_I2C_EXTERNAL1 = 2,
 	IST8308_BUS_I2C_EXTERNAL2 = 3,
-	IST8308_BUS_I2C_EXTERNAL3 = 4,
 	IST8308_BUS_I2C_INTERNAL  = 5,
 };
 
@@ -443,7 +442,6 @@ IST8308::init()
 	reset();
 
 	_class_instance = register_class_devname(MAG_BASE_DEVICE_PATH);
-
 	ret = OK;
 	/* sensor is ok, but not calibrated */
 	_sensor_ok = true;
@@ -1143,7 +1141,7 @@ struct ist8308_bus_option {
 	{ IST8308_BUS_I2C_EXTERNAL2, "/dev/ist8312_ext2", PX4_I2C_BUS_EXPANSION2, NULL },
 #endif
 #ifdef PX4_I2C_BUS_ONBOARD
-	{ IST8308_BUS_I2C_INTERNAL, "/dev/ist8310_int", PX4_I2C_BUS_ONBOARD, NULL },
+	{ IST8308_BUS_I2C_INTERNAL, "/dev/ist8308_int", PX4_I2C_BUS_ONBOARD, NULL },
 #endif
 };
 #define NUM_BUS_OPTIONS (sizeof(bus_options)/sizeof(bus_options[0]))
@@ -1176,7 +1174,6 @@ start_bus(struct ist8308_bus_option &bus, int address, enum Rotation rotation)
 	}
 
 	bus.dev = interface;
-
 	int fd = open(bus.devpath, O_RDONLY);
 
 	if (fd < 0) {
@@ -1220,6 +1217,7 @@ start(enum IST8308_BUS busid, int address, enum Rotation rotation)
 	}
 
 	if (!started) {
+
 		exit(1);
 	}
 }
