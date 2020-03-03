@@ -34,7 +34,7 @@
 #include <px4_platform_common/px4_config.h>
 #include <px4_platform_common/getopt.h>
 
-#include "TCBP001TA.hpp"
+#include "tcbp001ta.hpp"
 
 enum class TCBP001TA_BUS {
 

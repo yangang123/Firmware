@@ -35,8 +35,8 @@ px4_add_module(
 	MODULE drivers__barometer__tcbp001ta
 	MAIN tcbp001ta
 	SRCS
-		TCBP001TA.cpp
-		TCBP001TA_SPI.cpp
+		tcbp001ta.cpp
+		tcbp001ta_spi.cpp
 		tcbp001ta_main.cpp
 	DEPENDS
 		drivers_barometer

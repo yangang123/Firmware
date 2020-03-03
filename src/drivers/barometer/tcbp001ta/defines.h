@@ -43,7 +43,8 @@
 #define TCBP001TA_ADDR_CAL	0x10	/* address of calibration data */
 
 #define TCBP001TA_ADDR_DATA	0x00	/* address of presure data */
-//#define TCBP001TA_ADDR_TMP_DATA 0x03    /* address of tempature data */
+#define TCBP001TA_ADDR_PRS_DATA 0X00    /* address of presure data */
+#define TCBP001TA_ADDR_TMP_DATA 0x03    /* address of tempature data */
 
 #define TCBP001TA_ADDR_PRS_CFG  0x06
 #define TCBP001TA_ADDR_TMP_CFG  0x07
