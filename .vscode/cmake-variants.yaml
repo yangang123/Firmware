@@ -86,3 +86,8 @@ CONFIG:
       buildType: MinSizeRel
       settings:
         CONFIG: nxp_fmuk66-v3_default
+    efytech_swarm_default:
+      short: efytech_swarm
+      buildType: MinSizeRel
+      settings:
+        CONFIG: efytech_swarm_default
