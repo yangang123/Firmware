@@ -60,7 +60,6 @@ TCBP001TA::~TCBP001TA()
 int
 TCBP001TA::init()
 {
-	PX4_WARN("nTCBP001TA::init is running!!\r\n");
 	// reset sensor
 	_interface->set_reg(TCBP001TA_VALUE_RESET, TCBP001TA_ADDR_RESET);
 	usleep(10000);
@@ -72,12 +71,14 @@ TCBP001TA::init()
 	}
 
 	// Presure
-	_interface->set_reg(TCBP001TA_PRS_TMP_PRC_64 | TCBP001TA_PRS_TMP_RATE_8, TCBP001TA_ADDR_PRS_CFG);
+	//_interface->set_reg(TCBP001TA_PRS_TMP_PRC_64 | TCBP001TA_PRS_TMP_RATE_8, TCBP001TA_ADDR_PRS_CFG);
+	_interface->set_reg(0x36, TCBP001TA_ADDR_PRS_CFG);
 
 	// Temperature
-	_interface->set_reg(TCBP001TA_TMP_EXT_MEMS | TCBP001TA_PRS_TMP_PRC_2 | TCBP001TA_PRS_TMP_RATE_4, TCBP001TA_ADDR_TMP_CFG);
+	//_interface->set_reg(TCBP001TA_TMP_EXT_MEMS | TCBP001TA_PRS_TMP_PRC_2 | TCBP001TA_PRS_TMP_RATE_4, TCBP001TA_ADDR_TMP_CFG);
+	_interface->set_reg(0xA1, TCBP001TA_ADDR_TMP_CFG);
 
-	_interface->set_reg(0x00, TCBP001TA_ADDR_CFG_REG);
+	_interface->set_reg(0x04, TCBP001TA_ADDR_CFG_REG);
 
 	tmp_osr_scale_coeff = TCBP001TA_get_scaling_coef(0);
         prs_osr_scale_coeff = TCBP001TA_get_scaling_coef(0);
@@ -185,10 +186,12 @@ TCBP001TA::collect()
 	// this should be fairly close to the end of the conversion, so the best approximation of the time
 	const hrt_abstime timestamp_sample = hrt_absolute_time();
 
-	//write 0x02 to reg 0x08  Temperature
-	_interface->set_reg(0x02, TCBP001TA_ADDR_MEAS_CFG);
+	_interface->set_reg(0x07, TCBP001TA_ADDR_MEAS_CFG);
 
-	tcbp001ta::data_s *data_temp = _interface->get_data(TCBP001TA_ADDR_TMP_DATA);
+	//write 0x02 to reg 0x08  Temperature
+	//_interface->set_reg(0x02, TCBP001TA_ADDR_MEAS_CFG);
+
+	tcbp001ta::data_s *data_temp = _interface->get_data(TCBP001TA_ADDR_DATA);
 
 	if (data_temp == nullptr) {
 		perf_count(_comms_errors);
@@ -199,17 +202,17 @@ TCBP001TA::collect()
 	double p_raw = (data_temp->p_msb << 16 | data_temp->p_lsb << 8) + (data_temp->p_xlsb);
 
 	//write 0x01 to reg 0x08  Pressure
-	_interface->set_reg(0x01, TCBP001TA_ADDR_MEAS_CFG);
+	//_interface->set_reg(0x01, TCBP001TA_ADDR_MEAS_CFG);
 
-	tcbp001ta::data_s *data_pres = _interface->get_data(TCBP001TA_ADDR_PRS_DATA);
+	//tcbp001ta::data_s *data_pres = _interface->get_data(TCBP001TA_ADDR_PRS_DATA);
 
-	if (data_pres == nullptr) {
-		perf_count(_comms_errors);
-		perf_cancel(_sample_perf);
-		return -EIO;
-	}
+	//if (data_pres == nullptr) {
+	//	perf_count(_comms_errors);
+	//	perf_cancel(_sample_perf);
+	//	return -EIO;
+	//}
 
-	double t_raw = (data_pres->t_msb << 16 | data_pres->t_lsb << 8) + (data_pres->t_xlsb);
+	double t_raw = (data_temp->t_msb << 16 | data_temp->t_lsb << 8) + (data_temp->t_xlsb);
 
 	//PX4_INFO("p raw %f", p_raw);
 	//PX4_INFO("t raw %f", t_raw);
