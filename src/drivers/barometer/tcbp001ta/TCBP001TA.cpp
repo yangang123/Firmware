@@ -61,7 +61,7 @@ int
 TCBP001TA::init()
 {
 	// reset sensor
-	_interface->set_reg(TCBP001TA_VALUE_RESET, TCBP001TA_ADDR_RESET);
+	//_interface->set_reg(TCBP001TA_VALUE_RESET, TCBP001TA_ADDR_RESET);
 	usleep(10000);
 
 	// check id
@@ -80,47 +80,57 @@ TCBP001TA::init()
 
 	_interface->set_reg(0x04, TCBP001TA_ADDR_CFG_REG);
 
-	tmp_osr_scale_coeff = TCBP001TA_get_scaling_coef(0);
-        prs_osr_scale_coeff = TCBP001TA_get_scaling_coef(0);
+	tmp_osr_scale_coeff = TCBP001TA_get_scaling_coef(1);
+        prs_osr_scale_coeff = TCBP001TA_get_scaling_coef(6);
 
 	// get calibration and pre process them
 	_cal = _interface->get_calibration(TCBP001TA_ADDR_CAL);
 
-	_fcal.c0 = (_cal->c0_h << 4) + ((_cal->c0l_1h >> 4) & 0x0F);
+	_fcal.c0 = (_cal->read_buffer0 << 4) + ((_cal->read_buffer1 >> 4) & 0x0F);
 	if(_fcal.c0 > POW_2_11_MINUS_1)
 		_fcal.c0 = _fcal.c0 - POW_2_12;
 
-	_fcal.c1 = (_cal->c1l + ((_cal->c0l_1h & 0x0F) << 8));
+	_fcal.c1 = (_cal->read_buffer2 + ((_cal->read_buffer1 & 0x0F) << 8));
 	if(_fcal.c1 > POW_2_11_MINUS_1)
 		_fcal.c1 = _fcal.c1 - POW_2_12;
 
-	_fcal.c00 = ((_cal->c00m << 4) + (_cal->c00h << 12)) + ((_cal->c00l_10h >> 4) & 0x0F);
+	_fcal.c00 = ((_cal->read_buffer4 << 4) + (_cal->read_buffer3 << 12)) + ((_cal->read_buffer5 >> 4) & 0x0F);
 	if(_fcal.c00 > POW_2_19_MINUS_1)
 		_fcal.c00 = _fcal.c00 - POW_2_20;
 
-	_fcal.c10 = ((_cal->c00l_10h & 0x0F) << 16) + _cal->c10l + (_cal->c10m << 8);
+	_fcal.c10 = ((_cal->read_buffer5 & 0x0F) << 16) + _cal->read_buffer7 + (_cal->read_buffer6 << 8);
 	if(_fcal.c10 > POW_2_19_MINUS_1)
 		_fcal.c10 = _fcal.c10 - POW_2_20;
 
-	_fcal.c01 = (_cal->c01l + (_cal->c01h << 8));
+	_fcal.c01 = (_cal->read_buffer9 + (_cal->read_buffer8 << 8));
 	//if(_fcal.c01 > POW_2_15_MINUS_1)
 		//_fcal.c01 = _fcal.c01 - POW_2_16;
 
-	_fcal.c11 = (_cal->c11l + (_cal->c11h << 8));
+	_fcal.c11 = (_cal->read_buffer11 + (_cal->read_buffer10 << 8));
 	//if(_fcal.c11 > POW_2_15_MINUS_1)
 		//_fcal.c11 = _fcal.c11 - POW_2_16;
 
-	_fcal.c20 = (_cal->c20l + (_cal->c20h << 8));
+	_fcal.c20 = (_cal->read_buffer13 + (_cal->read_buffer12 << 8));
 	//if(_fcal.c20 > POW_2_15_MINUS_1)
 		//_fcal.c20 = _fcal.c20 - POW_2_16;
 
-	_fcal.c21 = (_cal->c21l + (_cal->c21h << 8));
+	_fcal.c21 = (_cal->read_buffer15 + (_cal->read_buffer14 << 8));
 	//if(_fcal.c21 > POW_2_15_MINUS_1)
 		//_fcal.c21 = _fcal.c21 - POW_2_16;
 
-	_fcal.c30 = (_cal->c30l + (_cal->c30h << 8));
+	_fcal.c30 = (_cal->read_buffer17 + (_cal->read_buffer16 << 8));
 	//if(_fcal.c30 > POW_2_15_MINUS_1)
 		//_fcal.c30 = _fcal.c30 - POW_2_16;
+
+	PX4_INFO("_fcal.c0 : %f", double(_fcal.c0));
+	PX4_INFO("_fcal.c1 : %f", double(_fcal.c1));
+	PX4_INFO("_fcal.c00 : %f", double(_fcal.c00));
+	PX4_INFO("_fcal.c10 : %f", double(_fcal.c10));
+	PX4_INFO("_fcal.c01 : %f", double(_fcal.c01));
+	PX4_INFO("_fcal.c11 : %f", double(_fcal.c11));
+	PX4_INFO("_fcal.c20 : %f", double(_fcal.c20));
+	PX4_INFO("_fcal.c21 : %f", double(_fcal.c21));
+	PX4_INFO("_fcal.c30 : %f", double(_fcal.c30));
 
 	Start();
 	return OK;
@@ -182,7 +192,7 @@ TCBP001TA::collect()
 	perf_begin(_sample_perf);
 
 	_collect_phase = false;
-	PX4_INFO("collect");
+	//PX4_INFO("collect");
 	// this should be fairly close to the end of the conversion, so the best approximation of the time
 	const hrt_abstime timestamp_sample = hrt_absolute_time();
 
@@ -201,6 +211,10 @@ TCBP001TA::collect()
 
 	double p_raw = (data_temp->p_msb << 16 | data_temp->p_lsb << 8) + (data_temp->p_xlsb);
 
+        if(p_raw > POW_2_23_MINUS_1){
+            p_raw = p_raw - POW_2_24;
+        }
+
 	//write 0x01 to reg 0x08  Pressure
 	//_interface->set_reg(0x01, TCBP001TA_ADDR_MEAS_CFG);
 
@@ -214,6 +228,10 @@ TCBP001TA::collect()
 
 	double t_raw = (data_temp->t_msb << 16 | data_temp->t_lsb << 8) + (data_temp->t_xlsb);
 
+	if(t_raw > POW_2_23_MINUS_1){
+            t_raw = t_raw - POW_2_24;
+        }
+
 	//PX4_INFO("p raw %f", p_raw);
 	//PX4_INFO("t raw %f", t_raw);
 	//PX4_INFO("data 0 %d data 1 %d data2 %d", data_temp->p_msb, data_temp->p_lsb, data_temp->p_xlsb);
@@ -222,9 +240,8 @@ TCBP001TA::collect()
 	// Temperature
 	double Traw_sc = (double)t_raw / (double)(tmp_osr_scale_coeff);
 
-
-
 	const float T = (_fcal.c0 / 2.0f) + (float)(_fcal.c1 * Traw_sc);
+	//const float T = 206 / 2.0f + (float)(-257 * Traw_sc);
 
 	// Pressure
 	double Praw_sc = (double) p_raw / (double)(prs_osr_scale_coeff);
@@ -239,11 +256,12 @@ TCBP001TA::collect()
 
 	float pressure = P / 100.0f; // to mbar
 
-	PX4_INFO("t_raw : %f", double(t_raw));
-	PX4_INFO("p_raw : %f", double(p_raw));
+	//PX4_INFO("t_raw : %f", double(t_raw));
+	//PX4_INFO("p_raw : %f", double(p_raw));
 
 	//PX4_INFO("temperature : %f", double(T));
 	//PX4_INFO("pressure : %f", double(pressure));
+
 	_px4_baro.update(timestamp_sample, pressure);
 
 	perf_end(_sample_perf);
