@@ -87,7 +87,7 @@ static bool start_bus(tcbp001ta_bus_option &bus)
 		delete interface;
 		return false;
 	}
-#if 0
+#if 1
 	if (interface->init() != PX4_OK)
 	{
 		PX4_WARN("no device on bus %u", (unsigned)bus.busid);

@@ -181,29 +181,52 @@ TCBP001TA::collect()
 	perf_begin(_sample_perf);
 
 	_collect_phase = false;
-
+	PX4_INFO("collect");
 	// this should be fairly close to the end of the conversion, so the best approximation of the time
 	const hrt_abstime timestamp_sample = hrt_absolute_time();
-	tcbp001ta::data_s *data = _interface->get_data(TCBP001TA_ADDR_DATA);
 
-	if (data == nullptr) {
+	//write 0x02 to reg 0x08  Temperature
+	_interface->set_reg(0x02, TCBP001TA_ADDR_MEAS_CFG);
+
+	tcbp001ta::data_s *data_temp = _interface->get_data(TCBP001TA_ADDR_TMP_DATA);
+
+	if (data_temp == nullptr) {
 		perf_count(_comms_errors);
 		perf_cancel(_sample_perf);
 		return -EIO;
 	}
 
-	uint32_t p_raw = data->p_msb << 16 | data->p_lsb << 8 | data->p_xlsb;
-	uint32_t t_raw = data->t_msb << 16 | data->t_lsb << 8 | data->t_xlsb;
+	double p_raw = (data_temp->p_msb << 16 | data_temp->p_lsb << 8) + (data_temp->p_xlsb);
+
+	//write 0x01 to reg 0x08  Pressure
+	_interface->set_reg(0x01, TCBP001TA_ADDR_MEAS_CFG);
+
+	tcbp001ta::data_s *data_pres = _interface->get_data(TCBP001TA_ADDR_PRS_DATA);
+
+	if (data_pres == nullptr) {
+		perf_count(_comms_errors);
+		perf_cancel(_sample_perf);
+		return -EIO;
+	}
+
+	double t_raw = (data_pres->t_msb << 16 | data_pres->t_lsb << 8) + (data_pres->t_xlsb);
+
+	//PX4_INFO("p raw %f", p_raw);
+	//PX4_INFO("t raw %f", t_raw);
+	//PX4_INFO("data 0 %d data 1 %d data2 %d", data_temp->p_msb, data_temp->p_lsb, data_temp->p_xlsb);
+	//PX4_INFO("data 3 %d data 4 %d data5 %d", data_pres->t_msb, data_pres->t_lsb, data_pres->t_xlsb);
 
 	// Temperature
 	double Traw_sc = (double)t_raw / (double)(tmp_osr_scale_coeff);
 
-        const float T =  (_fcal.c0 / 2.0f) + (float)(_fcal.c1 * Traw_sc);
+
+
+	const float T = (_fcal.c0 / 2.0f) + (float)(_fcal.c1 * Traw_sc);
 
 	// Pressure
 	double Praw_sc = (double) p_raw / (double)(prs_osr_scale_coeff);
 
-        const float P = _fcal.c00 +
+	const float P = _fcal.c00 +
 			Praw_sc * (_fcal.c10 + Praw_sc * (_fcal.c20 + Praw_sc * _fcal.c30)) +
 			Praw_sc * _fcal.c01 +
 			Praw_sc * Praw_sc * (_fcal.c11 + Praw_sc * _fcal.c21);
@@ -212,6 +235,12 @@ TCBP001TA::collect()
 	_px4_baro.set_temperature(T);
 
 	float pressure = P / 100.0f; // to mbar
+
+	PX4_INFO("t_raw : %f", double(t_raw));
+	PX4_INFO("p_raw : %f", double(p_raw));
+
+	//PX4_INFO("temperature : %f", double(T));
+	//PX4_INFO("pressure : %f", double(pressure));
 	_px4_baro.update(timestamp_sample, pressure);
 
 	perf_end(_sample_perf);
