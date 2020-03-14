@@ -34,7 +34,7 @@
 #include <px4_platform_common/px4_config.h>
 #include <px4_platform_common/getopt.h>
 
-#include "TCBP001TA.hpp"
+#include "tcbp001ta.hpp"
 
 enum class TCBP001TA_BUS {
 
@@ -72,24 +72,9 @@ static struct tcbp001ta_bus_option *find_bus(TCBP001TA_BUS busid)
 
 static bool start_bus(tcbp001ta_bus_option &bus)
 {
-
-	//tcbp001ta::ITCBP001TA *interface = bus.interface_constructor(bus.busnum, bus.address);
 	tcbp001ta::ITCBP001TA *interface = bus.interface_constructor(bus.busnum, bus.address);
 
-	PX4_WARN("busnum %u", (unsigned)bus.busnum);
-	PX4_WARN("address 0x%x", (unsigned)bus.address);
-
-
-	//if ((interface == nullptr) || (interface->init() != PX4_OK))
-	if (interface == nullptr)
-	{
-		PX4_WARN("no device on bus %u", (unsigned)bus.busid);
-		delete interface;
-		return false;
-	}
-#if 0
-	if (interface->init() != PX4_OK)
-	{
+	if ((interface == nullptr) || (interface->init() != PX4_OK)) {
 		PX4_WARN("no device on bus %u", (unsigned)bus.busid);
 		delete interface;
 		return false;
@@ -110,31 +95,29 @@ static bool start_bus(tcbp001ta_bus_option &bus)
 	}
 
 	bus.dev = dev;
-#endif
+
 	return true;
 }
 
 static int start(TCBP001TA_BUS busid)
 {
-	//for (tcbp001ta_bus_option &bus_option : bus_options)
-	//{
 
-	tcbp001ta_bus_option &bus_option = bus_options[0];
+	for (tcbp001ta_bus_option &bus_option : bus_options) {
 		if (bus_option.dev != nullptr) {
 			// this device is already started
 			PX4_WARN("already started");
-			//continue;
+			continue;
 		}
 
 		if (bus_option.busid != busid) {
 			// not the one that is asked for
-			//continue;
+			continue;
 		}
 
 		if (start_bus(bus_option)) {
 			return PX4_OK;
 		}
-	//}
+	}
 
 	return PX4_ERROR;
 }
@@ -184,6 +167,8 @@ static int usage()
 
 extern "C" int tcbp001ta_main(int argc, char *argv[])
 {
+
+	PX4_INFO("tcbp001ta_main is running!!\r\n");
 	int myoptind = 1;
 	// int ch;
 	// const char *myoptarg = nullptr;
@@ -200,7 +185,7 @@ extern "C" int tcbp001ta_main(int argc, char *argv[])
 	const char *verb = argv[myoptind];
 
 	if (!strcmp(verb, "start")) {
-		//PX4_INFO("start");
+		PX4_INFO("start");
 		return tcbp001ta::start(busid);
 
 	} else if (!strcmp(verb, "stop")) {

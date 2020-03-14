@@ -60,6 +60,7 @@ TCBP001TA::~TCBP001TA()
 int
 TCBP001TA::init()
 {
+	PX4_INFO("tcbp001ta_main is running!!\r\n");
 	// reset sensor
 	_interface->set_reg(TCBP001TA_VALUE_RESET, TCBP001TA_ADDR_RESET);
 	usleep(10000);

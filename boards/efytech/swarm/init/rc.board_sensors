@@ -7,7 +7,7 @@ bmi088 -A -R 10 start
 bmi088 -G -R 10 start
 
 ist8308 start  -b 5
-tcbp001ta  start
+#tcbp001ta  start
 #sleep 1
 
 #
