@@ -492,3 +492,6 @@ help:
 # Print a list of all config targets.
 list_config_targets:
 	@for targ in $(patsubst %_default,%[_default],$(ALL_CONFIG_TARGETS)); do echo $$targ; done
+upload_Firmware:
+	@echo "uploading Firmware..."
+	JLinkExe -if SWD -device STM32H743XI -speed 4000 -autoconnect 1 -CommanderScript "upload_Firmware.sh"

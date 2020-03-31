@@ -33,7 +33,7 @@
 
 #pragma once
 
-#include "tcbp001ta.h"
+#include "defines.h"
 
 #include <drivers/drv_hrt.h>
 #include <px4_platform_common/px4_config.h>

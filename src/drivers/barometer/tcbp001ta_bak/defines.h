@@ -43,7 +43,6 @@
 #define TCBP001TA_ADDR_CAL	0x10	/* address of calibration data */
 
 #define TCBP001TA_ADDR_DATA	0x00	/* address of presure data */
-
 #define TCBP001TA_ADDR_PRS_DATA 0X00    /* address of presure data */
 #define TCBP001TA_ADDR_TMP_DATA 0x03    /* address of tempature data */
 
@@ -100,24 +99,24 @@ namespace tcbp001ta
 
 #pragma pack(push,1)
 struct calibration_s {
-	uint8_t read_buffer0;
-	uint8_t read_buffer1;
-	uint8_t read_buffer2;
-	uint8_t read_buffer3;
-	uint8_t read_buffer4;
-	uint8_t read_buffer5;
-	uint8_t read_buffer6;
-	uint8_t read_buffer7;
-	uint8_t read_buffer8;
-	uint8_t read_buffer9;
-	uint8_t read_buffer10;
-	uint8_t read_buffer11;
-	uint8_t read_buffer12;
-	uint8_t read_buffer13;
-	uint8_t read_buffer14;
-	uint8_t read_buffer15;
-	uint8_t read_buffer16;
-	uint8_t read_buffer17;
+	uint8_t c0_h;
+	uint8_t c0l_1h;
+	uint8_t c1l;
+	uint8_t c00h;
+	uint8_t c00m;
+	uint8_t c00l_10h;
+	uint8_t c10m;
+	uint8_t c10l;
+	uint8_t c01h;
+	uint8_t c01l;
+	uint8_t c11h;
+	uint8_t c11l;
+	uint8_t c20h;
+	uint8_t c20l;
+	uint8_t c21h;
+	uint8_t c21l;
+	uint8_t c30h;
+	uint8_t c30l;
 }; //calibration data
 
 struct data_s {

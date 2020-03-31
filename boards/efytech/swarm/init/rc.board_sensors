@@ -1,10 +1,14 @@
 #!/bin/sh
 
 # Internal SPI bus BMI088 accel
-bmi088 -A -R 10 start
+sbmi088 -A -R 10 start
 
 # Internal SPI bus BMI088 gyro
 bmi088 -G -R 10 start
 
+#ist8308 start
 
 tcbp001ta  start
+#sleep 1
+
+#

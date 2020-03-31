@@ -37,12 +37,11 @@
  * SPI interface for TCBP001TA
  */
 
-#include "tcbp001ta.h"
+#include "defines.h"
 
 #include <px4_platform_common/px4_config.h>
 #include <drivers/device/spi.h>
 
-#if defined(PX4_SPIDEV_BARO) || defined(PX4_SPIDEV_EXT_BARO)
 
 /* SPI protocol address bits */
 #define DIR_READ			(1<<7)  //for set
@@ -112,8 +111,16 @@ tcbp001ta::data_s *
 TCBP001TA_SPI::get_data(uint8_t addr)
 {
 	_data.addr = (uint8_t)(addr | DIR_READ); // set MSB bit
+	// PX4_INFO("addr %02x", addr);
+	// PX4_INFO("addr %02x", _data.addr);
 
 	if (transfer((uint8_t *)&_data, (uint8_t *)&_data, sizeof(spi_data_s)) == OK) {
+		// PX4_INFO("t xlsb data %d", _data.data.t_xlsb);
+		// PX4_INFO("t msb data %d", _data.data.t_msb);
+		// PX4_INFO("t lsb data %d", _data.data.t_lsb);
+		// PX4_INFO("p xlsb data %d", _data.data.p_xlsb);
+		// PX4_INFO("p msb data %d", _data.data.p_msb);
+		// PX4_INFO("p lsb data %d", _data.data.p_lsb);
 		return &(_data.data);
 
 	} else {
@@ -134,4 +141,3 @@ TCBP001TA_SPI::get_calibration(uint8_t addr)
 	}
 }
 
-#endif /* PX4_SPIDEV_BARO || PX4_SPIDEV_EXT_BARO */

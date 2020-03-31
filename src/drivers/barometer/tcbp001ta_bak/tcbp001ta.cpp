@@ -31,7 +31,7 @@
  *
  ****************************************************************************/
 
-#include "TCBP001TA.hpp"
+#include "tcbp001ta.hpp"
 
 TCBP001TA::TCBP001TA(tcbp001ta::ITCBP001TA *interface) :
 	ScheduledWorkItem(MODULE_NAME, px4::device_bus_to_wq(interface->get_device_id())),
@@ -60,8 +60,9 @@ TCBP001TA::~TCBP001TA()
 int
 TCBP001TA::init()
 {
+	PX4_INFO("tcbp001ta_main is running!!\r\n");
 	// reset sensor
-	//_interface->set_reg(TCBP001TA_VALUE_RESET, TCBP001TA_ADDR_RESET);
+	_interface->set_reg(TCBP001TA_VALUE_RESET, TCBP001TA_ADDR_RESET);
 	usleep(10000);
 
 	// check id
@@ -70,69 +71,68 @@ TCBP001TA::init()
 		return -EIO;
 	}
 
-	// Presure
-	//_interface->set_reg(TCBP001TA_PRS_TMP_PRC_64 | TCBP001TA_PRS_TMP_RATE_8, TCBP001TA_ADDR_PRS_CFG);
-	_interface->set_reg(0x36, TCBP001TA_ADDR_PRS_CFG);
+	// Presure  write [0x6 | (0x3 << 4)] to 0x06
+	_interface->set_reg(TCBP001TA_PRS_TMP_PRC_64 | TCBP001TA_PRS_TMP_RATE_8, TCBP001TA_ADDR_PRS_CFG);
 
-	// Temperature
-	//_interface->set_reg(TCBP001TA_TMP_EXT_MEMS | TCBP001TA_PRS_TMP_PRC_2 | TCBP001TA_PRS_TMP_RATE_4, TCBP001TA_ADDR_TMP_CFG);
-	_interface->set_reg(0xA1, TCBP001TA_ADDR_TMP_CFG);
+	// Temperature  write [0x80 | 0x1 | (0x2 << 4)] to 0x07
+	_interface->set_reg(TCBP001TA_TMP_EXT_MEMS | TCBP001TA_PRS_TMP_PRC_2 | TCBP001TA_PRS_TMP_RATE_4,
+			    TCBP001TA_ADDR_TMP_CFG);
 
-	_interface->set_reg(0x04, TCBP001TA_ADDR_CFG_REG);
+	// write 0x00 to 0x09
+	_interface->set_reg(0x00, TCBP001TA_ADDR_CFG_REG);
 
-	tmp_osr_scale_coeff = TCBP001TA_get_scaling_coef(1);
-        prs_osr_scale_coeff = TCBP001TA_get_scaling_coef(6);
+	tmp_osr_scale_coeff = TCBP001TA_get_scaling_coef(0);
+	prs_osr_scale_coeff = TCBP001TA_get_scaling_coef(0);
 
 	// get calibration and pre process them
 	_cal = _interface->get_calibration(TCBP001TA_ADDR_CAL);
 
-	_fcal.c0 = (_cal->read_buffer0 << 4) + ((_cal->read_buffer1 >> 4) & 0x0F);
-	if(_fcal.c0 > POW_2_11_MINUS_1)
+	_fcal.c0 = (_cal->c0_h << 4) + ((_cal->c0l_1h >> 4) & 0x0F);
+
+	if (_fcal.c0 > POW_2_11_MINUS_1) {
 		_fcal.c0 = _fcal.c0 - POW_2_12;
+	}
 
-	_fcal.c1 = (_cal->read_buffer2 + ((_cal->read_buffer1 & 0x0F) << 8));
-	if(_fcal.c1 > POW_2_11_MINUS_1)
+	_fcal.c1 = (_cal->c1l + ((_cal->c0l_1h & 0x0F) << 8));
+
+	if (_fcal.c1 > POW_2_11_MINUS_1) {
 		_fcal.c1 = _fcal.c1 - POW_2_12;
+	}
 
-	_fcal.c00 = ((_cal->read_buffer4 << 4) + (_cal->read_buffer3 << 12)) + ((_cal->read_buffer5 >> 4) & 0x0F);
-	if(_fcal.c00 > POW_2_19_MINUS_1)
+	_fcal.c00 = ((_cal->c00m << 4) + (_cal->c00h << 12)) + ((_cal->c00l_10h >> 4) & 0x0F);
+
+	if (_fcal.c00 > POW_2_19_MINUS_1) {
 		_fcal.c00 = _fcal.c00 - POW_2_20;
+	}
 
-	_fcal.c10 = ((_cal->read_buffer5 & 0x0F) << 16) + _cal->read_buffer7 + (_cal->read_buffer6 << 8);
-	if(_fcal.c10 > POW_2_19_MINUS_1)
+	_fcal.c10 = ((_cal->c00l_10h & 0x0F) << 16) + _cal->c10l + (_cal->c10m << 8);
+
+	if (_fcal.c10 > POW_2_19_MINUS_1) {
 		_fcal.c10 = _fcal.c10 - POW_2_20;
+	}
 
-	_fcal.c01 = (_cal->read_buffer9 + (_cal->read_buffer8 << 8));
+	_fcal.c01 = (_cal->c01l + (_cal->c01h << 8));
 	//if(_fcal.c01 > POW_2_15_MINUS_1)
-		//_fcal.c01 = _fcal.c01 - POW_2_16;
+	//_fcal.c01 = _fcal.c01 - POW_2_16;
 
-	_fcal.c11 = (_cal->read_buffer11 + (_cal->read_buffer10 << 8));
+	_fcal.c11 = (_cal->c11l + (_cal->c11h << 8));
 	//if(_fcal.c11 > POW_2_15_MINUS_1)
-		//_fcal.c11 = _fcal.c11 - POW_2_16;
+	//_fcal.c11 = _fcal.c11 - POW_2_16;
 
-	_fcal.c20 = (_cal->read_buffer13 + (_cal->read_buffer12 << 8));
+	_fcal.c20 = (_cal->c20l + (_cal->c20h << 8));
 	//if(_fcal.c20 > POW_2_15_MINUS_1)
-		//_fcal.c20 = _fcal.c20 - POW_2_16;
+	//_fcal.c20 = _fcal.c20 - POW_2_16;
 
-	_fcal.c21 = (_cal->read_buffer15 + (_cal->read_buffer14 << 8));
+	_fcal.c21 = (_cal->c21l + (_cal->c21h << 8));
 	//if(_fcal.c21 > POW_2_15_MINUS_1)
-		//_fcal.c21 = _fcal.c21 - POW_2_16;
+	//_fcal.c21 = _fcal.c21 - POW_2_16;
 
-	_fcal.c30 = (_cal->read_buffer17 + (_cal->read_buffer16 << 8));
+	_fcal.c30 = (_cal->c30l + (_cal->c30h << 8));
 	//if(_fcal.c30 > POW_2_15_MINUS_1)
-		//_fcal.c30 = _fcal.c30 - POW_2_16;
-
-	PX4_INFO("_fcal.c0 : %f", double(_fcal.c0));
-	PX4_INFO("_fcal.c1 : %f", double(_fcal.c1));
-	PX4_INFO("_fcal.c00 : %f", double(_fcal.c00));
-	PX4_INFO("_fcal.c10 : %f", double(_fcal.c10));
-	PX4_INFO("_fcal.c01 : %f", double(_fcal.c01));
-	PX4_INFO("_fcal.c11 : %f", double(_fcal.c11));
-	PX4_INFO("_fcal.c20 : %f", double(_fcal.c20));
-	PX4_INFO("_fcal.c21 : %f", double(_fcal.c21));
-	PX4_INFO("_fcal.c30 : %f", double(_fcal.c30));
+	//_fcal.c30 = _fcal.c30 - POW_2_16;
 
 	Start();
+
 	return OK;
 }
 
@@ -176,11 +176,10 @@ TCBP001TA::measure()
 	//int ret = _interface->set_reg(_curr_ctrl | TCBP001TA_CTRL_MODE_FORCE, TCBP001TA_ADDR_CTRL);
 
 	//if (ret != OK) {
-		//perf_count(_comms_errors);
-		//perf_cancel(_measure_perf);
-		//return -EIO;
+	//perf_count(_comms_errors);
+	//perf_cancel(_measure_perf);
+	//return -EIO;
 	//}
-
 	perf_end(_measure_perf);
 
 	return OK;
@@ -192,16 +191,13 @@ TCBP001TA::collect()
 	perf_begin(_sample_perf);
 
 	_collect_phase = false;
-	//PX4_INFO("collect");
 	// this should be fairly close to the end of the conversion, so the best approximation of the time
 	const hrt_abstime timestamp_sample = hrt_absolute_time();
 
-	_interface->set_reg(0x07, TCBP001TA_ADDR_MEAS_CFG);
-
 	//write 0x02 to reg 0x08  Temperature
-	//_interface->set_reg(0x02, TCBP001TA_ADDR_MEAS_CFG);
+	_interface->set_reg(0x02, TCBP001TA_ADDR_MEAS_CFG);
 
-	tcbp001ta::data_s *data_temp = _interface->get_data(TCBP001TA_ADDR_DATA);
+	tcbp001ta::data_s *data_temp = _interface->get_data(TCBP001TA_ADDR_TMP_DATA);
 
 	if (data_temp == nullptr) {
 		perf_count(_comms_errors);
@@ -211,37 +207,28 @@ TCBP001TA::collect()
 
 	double p_raw = (data_temp->p_msb << 16 | data_temp->p_lsb << 8) + (data_temp->p_xlsb);
 
-        if(p_raw > POW_2_23_MINUS_1){
-            p_raw = p_raw - POW_2_24;
-        }
-
 	//write 0x01 to reg 0x08  Pressure
-	//_interface->set_reg(0x01, TCBP001TA_ADDR_MEAS_CFG);
+	_interface->set_reg(0x01, TCBP001TA_ADDR_MEAS_CFG);
 
-	//tcbp001ta::data_s *data_pres = _interface->get_data(TCBP001TA_ADDR_PRS_DATA);
+	tcbp001ta::data_s *data_pres = _interface->get_data(TCBP001TA_ADDR_PRS_DATA);
 
-	//if (data_pres == nullptr) {
-	//	perf_count(_comms_errors);
-	//	perf_cancel(_sample_perf);
-	//	return -EIO;
-	//}
+	if (data_pres == nullptr) {
+		perf_count(_comms_errors);
+		perf_cancel(_sample_perf);
+		return -EIO;
+	}
 
-	double t_raw = (data_temp->t_msb << 16 | data_temp->t_lsb << 8) + (data_temp->t_xlsb);
+	double t_raw = (data_pres->t_msb << 16 | data_pres->t_lsb << 8) + (data_pres->t_xlsb);
 
-	if(t_raw > POW_2_23_MINUS_1){
-            t_raw = t_raw - POW_2_24;
-        }
-
-	//PX4_INFO("p raw %f", p_raw);
-	//PX4_INFO("t raw %f", t_raw);
-	//PX4_INFO("data 0 %d data 1 %d data2 %d", data_temp->p_msb, data_temp->p_lsb, data_temp->p_xlsb);
-	//PX4_INFO("data 3 %d data 4 %d data5 %d", data_pres->t_msb, data_pres->t_lsb, data_pres->t_xlsb);
+	// PX4_INFO("p raw %f", p_raw);
+	// PX4_INFO("t raw %f", t_raw);
+	// PX4_INFO("data 0 %d data 1 %d data2 %d", data_temp->p_msb, data_temp->p_lsb, data_temp->p_xlsb);
+	// PX4_INFO("data 3 %d data 4 %d data5 %d", data_pres->t_msb, data_pres->t_lsb, data_pres->t_xlsb);
 
 	// Temperature
 	double Traw_sc = (double)t_raw / (double)(tmp_osr_scale_coeff);
 
 	const float T = (_fcal.c0 / 2.0f) + (float)(_fcal.c1 * Traw_sc);
-	//const float T = 206 / 2.0f + (float)(-257 * Traw_sc);
 
 	// Pressure
 	double Praw_sc = (double) p_raw / (double)(prs_osr_scale_coeff);
@@ -255,13 +242,7 @@ TCBP001TA::collect()
 	_px4_baro.set_temperature(T);
 
 	float pressure = P / 100.0f; // to mbar
-
-	//PX4_INFO("t_raw : %f", double(t_raw));
-	//PX4_INFO("p_raw : %f", double(p_raw));
-
-	//PX4_INFO("temperature : %f", double(T));
-	//PX4_INFO("pressure : %f", double(pressure));
-
+	// PX4_INFO("press %f", double(pressure));
 	_px4_baro.update(timestamp_sample, pressure);
 
 	perf_end(_sample_perf);
@@ -282,38 +263,46 @@ TCBP001TA::print_info()
 uint32_t
 TCBP001TA::TCBP001TA_get_scaling_coef(uint8_t osr)
 {
-        uint32_t scaling_coeff;
+	uint32_t scaling_coeff;
 
-        switch (osr){
+	switch (osr) {
 
-              case 0:
-                    scaling_coeff = 524288;
-                    break;
-              case 1:
-                    scaling_coeff = 1572864;
-                    break;
-              case 2:
-                    scaling_coeff = 3670016;
-                    break;
-              case 3:
-                    scaling_coeff = 7864320;
-                    break;
-              case 4:
-                    scaling_coeff = 253952;
-                    break;
-              case 5:
-                    scaling_coeff = 516096;
-                    break;
-              case 6:
-                    scaling_coeff = 1040384;
-                    break;
-              case 7:
-                    scaling_coeff = 2088960;
-                    break;
-              default:
-                     scaling_coeff = 524288;
-                     break;
-        }
+	case 0:
+		scaling_coeff = 524288;
+		break;
 
-        return scaling_coeff;
+	case 1:
+		scaling_coeff = 1572864;
+		break;
+
+	case 2:
+		scaling_coeff = 3670016;
+		break;
+
+	case 3:
+		scaling_coeff = 7864320;
+		break;
+
+	case 4:
+		scaling_coeff = 253952;
+		break;
+
+	case 5:
+		scaling_coeff = 516096;
+		break;
+
+	case 6:
+		scaling_coeff = 1040384;
+		break;
+
+	case 7:
+		scaling_coeff = 2088960;
+		break;
+
+	default:
+		scaling_coeff = 524288;
+		break;
+	}
+
+	return scaling_coeff;
 }
