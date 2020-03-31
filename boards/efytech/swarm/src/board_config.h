@@ -140,6 +140,8 @@
 #define PX4_I2C_BUS_EXPANSION       3
 #define PX4_I2C_BUS_ONBOARD         4
 
+#define PX4_I2C_OBDEV_BMP280        0x76
+
 #define BOARD_NUMBER_I2C_BUSES      2
 #define BOARD_I2C_BUS_CLOCK_INIT    {100000, 100000}
 

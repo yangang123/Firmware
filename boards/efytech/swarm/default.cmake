@@ -22,6 +22,8 @@ px4_add_board(
 		magnetometer/ist8308
 		barometer/tcbp001ta
 		magnetometer/ist8310
+		barometer/bmp280
+
 
 	MODULES
 		airspeed_selector
