@@ -48,6 +48,7 @@ px4_add_board(
 		sih
 		temperature_compensation
 		vmount
+		dance_step_management
 	SYSTEMCMDS
 		bl_update
 		config

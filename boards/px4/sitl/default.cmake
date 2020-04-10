@@ -49,6 +49,7 @@ px4_add_board(
 		vmount
 		vtol_att_control
 		uuv_att_control
+		dance_step_management
 
 	SYSTEMCMDS
 		#config
@@ -84,6 +85,7 @@ px4_add_board(
 		px4_simple_app # Tutorial code from http://dev.px4.io/en/apps/hello_sky.html
 		rover_steering_control # Rover example app
 		uuv_example_app
+
 	)
 
 set(config_sitl_viewer jmavsim CACHE STRING "viewer for sitl")
