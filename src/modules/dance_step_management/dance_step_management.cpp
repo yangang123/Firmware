@@ -71,151 +71,96 @@
 
 #include "dance_step_management.h"
 
-/**
- * dance_step_management app start / stop handling function
- *
- * @ingroup apps
- */
 extern "C" __EXPORT int dance_step_management_main(int argc, char *argv[]);
 
-
+using  namespace dance_step_management;
 
 namespace dance_step_management
 {
 
-static DanceStepManagement	*g_dance_step_management;
-
-DanceStepManagement::DanceStepManagement() :
-	_task_should_exit(false),
-	_main_task(-1)
+DanceStepManagement::DanceStepManagement()
 {
 
 }
 
 DanceStepManagement::~DanceStepManagement()
 {
-	if (_main_task != -1) {
-
-		/* task wakes up every 100ms or so at the longest */
-		_task_should_exit = true;
-
-		/* wait for a second for the task to quit at our request */
-		unsigned i = 0;
-
-		do {
-			/* wait 20ms */
-			px4_usleep(20000);
-
-			/* if we have given up, kill it */
-			if (++i > 50) {
-				px4_task_delete(_main_task);
-				break;
-			}
-		} while (_main_task != -1);
-	}
-
-	dance_step_management::g_dance_step_management = nullptr;
 }
 
-int
-DanceStepManagement::start()
+int DanceStepManagement::task_spawn(int argc, char *argv[])
 {
 	/* start the task */
-	_main_task = px4_task_spawn_cmd("dance_step_management",
-					SCHED_DEFAULT,
-					SCHED_PRIORITY_DEFAULT + 15,
-					1500,
-					(px4_main_t)&DanceStepManagement::task_main_trampoline,
-					nullptr);
+	_task_id = px4_task_spawn_cmd("dance_step_management",
+				      SCHED_DEFAULT,
+				      SCHED_PRIORITY_DEFAULT + 15,
+				      2000,
+				      (px4_main_t)&run_trampoline,
+				      (char *const *)argv);
 
-	if (_main_task < 0) {
-		warn("task start failed");
+	if (_task_id < 0) {
+		_task_id = -1;
 		return -errno;
 	}
 
-	return OK;
+	return 0;
+}
+
+int DanceStepManagement::print_status()
+{
+	return 0;
+}
+
+int DanceStepManagement::custom_command(int argc, char *argv[])
+{
+	return print_usage("unknown command");
 }
 
 
 void
-DanceStepManagement::status()
+DanceStepManagement::run()
 {
-}
-
-void
-DanceStepManagement::task_main()
-{
-	while (!_task_should_exit) {
+	while (!should_exit()) {
 
 		// 舞步管理实现
 		warnx("DanceStepManagement run");
 		sleep(1);
-
-
 	}
 
 	warnx("exiting.");
-
-	_main_task = -1;
-	_exit(0);
 }
 
-int
-DanceStepManagement::task_main_trampoline(int argc, char *argv[])
+int DanceStepManagement::print_usage(const char *reason)
 {
-	dance_step_management::g_dance_step_management->task_main();
+	if (reason) {
+		PX4_WARN("%s\n", reason);
+	}
+
+	PRINT_MODULE_DESCRIPTION(
+		R"DESCR_STR(
+### Description
+
+The provided functionality includes:
+
+### Implementation
+
+)DESCR_STR");
+
+	PRINT_MODULE_USAGE_NAME("dance_step_management", "system");
+	PRINT_MODULE_USAGE_COMMAND("start");
+	PRINT_MODULE_USAGE_DEFAULT_COMMANDS();
+
 	return 0;
 }
 
+DanceStepManagement *DanceStepManagement::instantiate(int argc, char *argv[])
+{
+	return new DanceStepManagement();
 }
 
-
-static void usage()
-{
-	errx(1, "usage: dance_step_management {start|stop|status}");
 }
 
-int dance_step_management_main(int argc, char *argv[])
+extern "C" __EXPORT int dance_step_management_main(int argc, char *argv[])
 {
-	if (argc < 2) {
-		usage();
-	}
-
-	if (!strcmp(argv[1], "start")) {
-
-		if (dance_step_management::g_dance_step_management != nullptr) {
-			errx(1, "already running");
-		}
-
-		dance_step_management::g_dance_step_management = new dance_step_management::DanceStepManagement;
-
-		if (dance_step_management::g_dance_step_management == nullptr) {
-			errx(1, "alloc failed");
-		}
-
-		if (OK != dance_step_management::g_dance_step_management->start()) {
-			delete dance_step_management::g_dance_step_management;
-			dance_step_management::g_dance_step_management = nullptr;
-			err(1, "start failed");
-		}
-
-		return 0;
-	}
-
-	if (dance_step_management::g_dance_step_management == nullptr) {
-		errx(1, "not running");
-	}
-
-	if (!strcmp(argv[1], "stop")) {
-		delete dance_step_management::g_dance_step_management;
-		dance_step_management::g_dance_step_management = nullptr;
-
-	} else if (!strcmp(argv[1], "status")) {
-		dance_step_management::g_dance_step_management->status();
-
-	} else {
-		usage();
-	}
-
-	return 0;
+	printf("xxx\n");
+	return DanceStepManagement::main(argc, argv);
 }
