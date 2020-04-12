@@ -41,14 +41,14 @@
 
 #include <px4_platform_common/px4_config.h>
 #include <px4_platform_common/defines.h>
-// #include <px4_platform_common/module.h>
+#include <px4_platform_common/module.h>
 // #include <px4_platform_common/module_params.h>
 #include <px4_platform_common/posix.h>
 
 namespace dance_step_management
 {
 
-class DanceStepManagement
+class DanceStepManagement:public ModuleBase<DanceStepManagement>
 {
 public:
 	/**
@@ -59,31 +59,26 @@ public:
 	/**
 	 * Destructor, also kills task.
 	 */
-	~DanceStepManagement();
+	~DanceStepManagement() override; 
+    
+	/** @see ModuleBase */
+	static int task_spawn(int argc, char *argv[]);
 
-	/**
-	 * Start the task.
-	 *
-	 * @return		OK on success.
-	 */
-	int		start();
+	/** @see ModuleBase */
+	static DanceStepManagement *instantiate(int argc, char *argv[]);
 
-	/**
-	 * Display status.
-	 */
-	void		status();
+	/** @see ModuleBase */
+	static int custom_command(int argc, char *argv[]);
 
+	/** @see ModuleBase */
+	static int print_usage(const char *reason = nullptr);
 
-private:
-	bool		_task_should_exit;		/**< if true, task should exit */
-	int		_main_task;			/**< handle for task */
+	/** @see ModuleBase::run() */
+	void run() override;
 
-	void		task_main();
-	/**
-	 * Shim for calling task_main from task_create.
-	 */
-	static int	task_main_trampoline(int argc, char *argv[]);
+	/** @see ModuleBase::print_status() */
+	int print_status() override;
+
 };
 
-
-} /* namespace RCUpdate */
+} /* namespace DanceStepManagement */
