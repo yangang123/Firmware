@@ -1,4 +1,7 @@
 
+add_definitions(
+	-DEFYTECH_SWARM
+)
 px4_add_board(
 	PLATFORM nuttx
 	VENDOR efytech

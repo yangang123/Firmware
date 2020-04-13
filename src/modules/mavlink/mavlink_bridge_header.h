@@ -85,9 +85,11 @@ void mavlink_end_uart_send(mavlink_channel_t chan, int length);
 
 extern mavlink_status_t *mavlink_get_channel_status(uint8_t chan);
 extern mavlink_message_t *mavlink_get_channel_buffer(uint8_t chan);
-
+#ifdef EFYTECH_SWARM
+#include <v2.0/efytech/mavlink.h>
+#else
 #include <v2.0/standard/mavlink.h>
-
+#endif
 __END_DECLS
 
 #endif /* MAVLINK_BRIDGE_HEADER_H */
