@@ -51,7 +51,7 @@ px4_add_board(
 		vmount
 		vtol_att_control
 		uuv_att_control
-
+		dance_step_management
 	SYSTEMCMDS
 		#config
 		#dumpfile

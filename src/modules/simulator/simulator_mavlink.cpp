@@ -662,7 +662,9 @@ void Simulator::request_hil_state_quaternion()
 {
 	mavlink_command_long_t cmd_long = {};
 	mavlink_message_t message = {};
+#ifndef EFYTECH_SWARM
 	cmd_long.command = MAV_CMD_SET_MESSAGE_INTERVAL;
+#endif
 	cmd_long.param1 = MAVLINK_MSG_ID_HIL_STATE_QUATERNION;
 	cmd_long.param2 = 5e3;
 	mavlink_msg_command_long_encode(_param_mav_sys_id.get(), _param_mav_comp_id.get(), &message, &cmd_long);

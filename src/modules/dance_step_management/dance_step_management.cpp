@@ -65,13 +65,56 @@ using  namespace dance_step_management;
 namespace dance_step_management
 {
 
+
+#define  WORK_ITEM_SIZE_MAX  8
+work_queue_item_t work_queue_item_pool[WORK_ITEM_SIZE_MAX];
+uint16_t g_free_count;
+static sq_queue_t g_free_q;
+static sq_queue_t g_work_q;
+
 DanceStepManagement::DanceStepManagement()
 {
+	sq_init(&g_free_q);
+	sq_init(&g_work_q);
 
+	work_queue_item_t *item = work_queue_item_pool;
+	for (size_t i = 0; i < WORK_ITEM_SIZE_MAX; i++) {
+		sq_addlast((FAR sq_entry_t *)item++, &g_free_q);
+	}
+	g_free_count = WORK_ITEM_SIZE_MAX;
 }
 
 DanceStepManagement::~DanceStepManagement()
 {
+
+}
+
+work_queue_item_t * DanceStepManagement::create_item(void)
+{
+	work_queue_item_t *item_p;
+
+       item_p = ( work_queue_item_t *)sq_remfirst(&g_free_q);
+
+       if (item_p != NULL)
+        {
+          g_free_count--;
+          item_p->next  = NULL;
+        }
+
+	return item_p;
+}
+
+void DanceStepManagement::remove_item(work_queue_item_t *item)
+{
+      if (item) {
+	sq_addlast((sq_entry_t *)item, &g_free_q);
+	g_free_count++;
+      }
+}
+
+void DanceStepManagement::print_queue(void)
+{
+     warnx("g_free_count:%d", g_free_count);
 }
 
 int DanceStepManagement::task_spawn(int argc, char *argv[])
@@ -103,9 +146,18 @@ int DanceStepManagement::custom_command(int argc, char *argv[])
 }
 
 
-void
-DanceStepManagement::run()
+void DanceStepManagement::run()
 {
+	work_queue_item_t *p;
+	p = create_item();
+	p = create_item();
+	p = create_item();
+	p = create_item();
+	print_queue();
+
+	remove_item(p);
+	print_queue();
+
 	while (!should_exit()) {
 
 		// 舞步管理实现

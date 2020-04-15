@@ -48,6 +48,11 @@
 namespace dance_step_management
 {
 
+typedef struct {
+	sq_entry_t *next;
+	void *data;
+} work_queue_item_t;
+
 class DanceStepManagement:public ModuleBase<DanceStepManagement>
 {
 public:
@@ -59,8 +64,8 @@ public:
 	/**
 	 * Destructor, also kills task.
 	 */
-	~DanceStepManagement() override; 
-    
+	~DanceStepManagement() override;
+
 	/** @see ModuleBase */
 	static int task_spawn(int argc, char *argv[]);
 
@@ -78,6 +83,17 @@ public:
 
 	/** @see ModuleBase::print_status() */
 	int print_status() override;
+
+private:
+
+	//创建item
+	work_queue_item_t *create_item(void);
+
+        //删除tiem
+	void remove_item(work_queue_item_t *item);
+
+	//打印队列状态
+	void print_queue(void);
 
 };
 
