@@ -153,6 +153,10 @@ MavlinkReceiver::handle_message(mavlink_message_t *msg)
 		handle_message_set_position_target_global_int(msg);
 		break;
 
+	case MAVLINK_MSG_ID_SET_POSITION_TARGET_GLOBAL_INT_SWARM:
+		handle_message_set_position_target_global_int_swarm(msg);
+		break;
+
 	case MAVLINK_MSG_ID_SET_ATTITUDE_TARGET:
 		handle_message_set_attitude_target(msg);
 		break;
@@ -933,6 +937,24 @@ MavlinkReceiver::handle_message_set_position_target_local_ned(mavlink_message_t 
 			}
 		}
 	}
+}
+
+void
+MavlinkReceiver::handle_message_set_position_target_global_int_swarm(mavlink_message_t *msg)
+{
+	mavlink_set_position_target_global_int_t set_position_target_global_int;
+	mavlink_msg_set_position_target_global_int_decode(msg, &set_position_target_global_int);
+
+	dance_step_position_s dance_step_position;
+
+	//更新时间戳
+	dance_step_position.timestamp = hrt_absolute_time();
+
+	//更新
+	memcpy((uint8_t*)&dance_step_position+sizeof(dance_step_position.timestamp), (uint8_t*)&set_position_target_global_int,
+		sizeof(mavlink_set_position_target_global_int_t) );
+
+	_dance_step_position_pub.publish(dance_step_position);
 }
 
 void

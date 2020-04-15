@@ -42,15 +42,41 @@
 #include <px4_platform_common/px4_config.h>
 #include <px4_platform_common/defines.h>
 #include <px4_platform_common/module.h>
-// #include <px4_platform_common/module_params.h>
+
 #include <px4_platform_common/posix.h>
+
+#include <uORB/Publication.hpp>
+#include <uORB/Subscription.hpp>
+#include <uORB/topics/dance_step_position.h>
+#include <uORB/topics/position_setpoint_triplet.h>
+#include <uORB/topics/offboard_control_mode.h>
+#include <uORB/topics/vehicle_control_mode.h>
+#include <uORB/topics/vehicle_local_position.h>
+
 
 namespace dance_step_management
 {
 
+typedef enum POSITION_TARGET_TYPEMASK
+{
+   POSITION_TARGET_TYPEMASK_X_IGNORE=1, /* Ignore position x | */
+   POSITION_TARGET_TYPEMASK_Y_IGNORE=2, /* Ignore position y | */
+   POSITION_TARGET_TYPEMASK_Z_IGNORE=4, /* Ignore position z | */
+   POSITION_TARGET_TYPEMASK_VX_IGNORE=8, /* Ignore velocity x | */
+   POSITION_TARGET_TYPEMASK_VY_IGNORE=16, /* Ignore velocity y | */
+   POSITION_TARGET_TYPEMASK_VZ_IGNORE=32, /* Ignore velocity z | */
+   POSITION_TARGET_TYPEMASK_AX_IGNORE=64, /* Ignore acceleration x | */
+   POSITION_TARGET_TYPEMASK_AY_IGNORE=128, /* Ignore acceleration y | */
+   POSITION_TARGET_TYPEMASK_AZ_IGNORE=256, /* Ignore acceleration z | */
+   POSITION_TARGET_TYPEMASK_FORCE_SET=512, /* Use force instead of acceleration | */
+   POSITION_TARGET_TYPEMASK_YAW_IGNORE=1024, /* Ignore yaw | */
+   POSITION_TARGET_TYPEMASK_YAW_RATE_IGNORE=2048, /* Ignore yaw rate | */
+   POSITION_TARGET_TYPEMASK_ENUM_END=2049, /*  | */
+} POSITION_TARGET_TYPEMASK;
+
 typedef struct {
 	sq_entry_t *next;
-	void *data;
+	dance_step_position_s data;
 } work_queue_item_t;
 
 class DanceStepManagement:public ModuleBase<DanceStepManagement>
@@ -86,15 +112,30 @@ public:
 
 private:
 
-	//创建item
-	work_queue_item_t *create_item(void);
+	//从空闲队列中取1个item
+	work_queue_item_t *alloc_item(void);
 
-        //删除tiem
-	void remove_item(work_queue_item_t *item);
+        //将item放到空闲队尾
+	void free_item(work_queue_item_t *item);
+
+	//将item放到工作队列
+	void add_item_to_work_queue(work_queue_item_t *item);
+
+        //将item从工作队列释放
+	work_queue_item_t * get_item_from_work_queue(void);
 
 	//打印队列状态
 	void print_queue(void);
 
+	void handle_message_set_position_target_global_int(dance_step_position_s &set_position_target_global_int);
+
+	uORB::Publication<offboard_control_mode_s>		_offboard_control_mode_pub{ORB_ID(offboard_control_mode)};
+	uORB::Publication<position_setpoint_triplet_s>		_pos_sp_triplet_pub{ORB_ID(position_setpoint_triplet)};
+	uORB::Publication<vehicle_local_position_s>		_local_pos_pub{ORB_ID(vehicle_local_position)};
+
+	uORB::Subscription					_vehicle_local_position_sub{ORB_ID(vehicle_local_position)};
+	uORB::Subscription				  	_control_mode_sub{ORB_ID(vehicle_control_mode)};
+	uORB::Subscription					_dance_step_position_sub{ORB_ID(dance_step_position)};
 };
 
 } /* namespace DanceStepManagement */
