@@ -69,22 +69,22 @@ namespace dance_step_management
 
 #define  WORK_ITEM_SIZE_MAX  8
 
-static 	work_queue_item_t work_queue_item_pool[WORK_ITEM_SIZE_MAX];
-static	uint16_t 	g_free_count;
-static	uint16_t 	g_work_count;
-static 	sq_queue_t 	g_free_q;
-static 	sq_queue_t 	g_work_q;
+// static 	work_queue_item_t work_queue_item_pool[WORK_ITEM_SIZE_MAX];
+// static	uint16_t 	g_free_count;
+// static	uint16_t 	g_work_count;
+// static 	sq_queue_t 	g_free_q;
+// static 	sq_queue_t 	g_work_q;
 
 DanceStepManagement::DanceStepManagement()
 {
-	sq_init(&g_free_q);
-	sq_init(&g_work_q);
+	// sq_init(&g_free_q);
+	// sq_init(&g_work_q);
 
-	work_queue_item_t *item = work_queue_item_pool;
-	for (size_t i = 0; i < WORK_ITEM_SIZE_MAX; i++) {
-		sq_addlast((FAR sq_entry_t *)item++, &g_free_q);
-	}
-	g_free_count = WORK_ITEM_SIZE_MAX;
+	// work_queue_item_t *item = work_queue_item_pool;
+	// for (size_t i = 0; i < WORK_ITEM_SIZE_MAX; i++) {
+	// 	sq_addlast((FAR sq_entry_t *)item++, &g_free_q);
+	// }
+	// g_free_count = WORK_ITEM_SIZE_MAX;
 }
 
 DanceStepManagement::~DanceStepManagement()
@@ -94,53 +94,53 @@ DanceStepManagement::~DanceStepManagement()
 
 work_queue_item_t * DanceStepManagement::alloc_item(void)
 {
-	work_queue_item_t *item_p;
+	// work_queue_item_t *item_p;
 
-	item_p = ( work_queue_item_t *)sq_remfirst(&g_free_q);
+	// item_p = ( work_queue_item_t *)sq_remfirst(&g_free_q);
 
-	if (item_p != NULL)
-	{
-		g_free_count--;
-		item_p->next  = NULL;
-	}
+	// if (item_p != NULL)
+	// {
+	// 	g_free_count--;
+	// 	item_p->next  = NULL;
+	// }
 
-	return item_p;
+	return NULL;
 }
 
 
 void DanceStepManagement::free_item(work_queue_item_t *item)
 {
-	if (item) {
-		sq_addlast((sq_entry_t *)item, &g_free_q);
-		g_free_count++;
-	}
+	// if (item) {
+	// 	sq_addlast((sq_entry_t *)item, &g_free_q);
+	// 	g_free_count++;
+	// }
 }
 
 void DanceStepManagement::add_item_to_work_queue(work_queue_item_t *item)
 {
-	sq_addlast((sq_entry_t *)item, &g_work_q);
-	g_work_count++;
+	// sq_addlast((sq_entry_t *)item, &g_work_q);
+	// g_work_count++;
 }
 
 
 work_queue_item_t * DanceStepManagement::get_item_from_work_queue(void)
 {
-	work_queue_item_t *item_p;
+	// work_queue_item_t *item_p;
 
-        item_p = ( work_queue_item_t *)sq_remfirst(&g_work_q);
+    //     item_p = ( work_queue_item_t *)sq_remfirst(&g_work_q);
 
-	if (item_p != NULL)
-	{
-		g_work_count--;
-	}
+	// if (item_p != NULL)
+	// {
+	// 	g_work_count--;
+	// }
 
-	return item_p;
+	return NULL;
 }
 
 void DanceStepManagement::print_queue(void)
 {
-     warnx("g_free_count:%d", g_free_count);
-     warnx("g_work_count:%d", g_work_count);
+    //  warnx("g_free_count:%d", g_free_count);
+    //  warnx("g_work_count:%d", g_work_count);
 }
 
 int DanceStepManagement::task_spawn(int argc, char *argv[])
