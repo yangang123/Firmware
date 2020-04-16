@@ -220,6 +220,7 @@ DanceStepManagement::handle_message_set_position_target_global_int(dance_step_po
 
 		offboard_control_mode.timestamp = hrt_absolute_time();
 		_offboard_control_mode_pub.publish(offboard_control_mode);
+		warnx("send offboard_control_mode_pub");
 
 		/* If we are in offboard control mode and offboard control loop through is enabled
 		 * also publish the setpoint topic which is read by the controller */
@@ -337,6 +338,8 @@ DanceStepManagement::handle_message_set_position_target_global_int(dance_step_po
 				}
 
 				_pos_sp_triplet_pub.publish(pos_sp_triplet);
+
+				warnx("send _pos_sp_triplet_pub");
 			}
 		}
 
@@ -369,6 +372,8 @@ void DanceStepManagement::run()
 		//定时器发送舞步到offboard
 		if (hrt_absolute_time() - current > 10000) {
 			current = hrt_absolute_time();
+			work_queue_item_t item;
+			work_queue_item_t *item_send = &item;
 			//  虚拟数据航点信息赋值
 			item_send->data.lat_int =  42.391138   * 1e7;
 			item_send->data.lon_int =  123.3718778 * 1e7;
@@ -383,7 +388,9 @@ void DanceStepManagement::run()
 			item_send->data.type_mask = POSITION_TARGET_TYPEMASK_X_IGNORE;
 			item_send->data.target_system =0;
 			item_send->data.target_component =0;
-		handle_message_set_position_target_global_int(item_send->data);
+			handle_message_set_position_target_global_int(item_send->data);
+
+			warnx("send one point to offboard");
 			
 		}
 
