@@ -74,10 +74,14 @@ typedef enum POSITION_TARGET_TYPEMASK
    POSITION_TARGET_TYPEMASK_ENUM_END=2049, /*  | */
 } POSITION_TARGET_TYPEMASK;
 
-typedef struct {
-	sq_entry_t *next;
+
+struct work_queue_item_s {
+	struct work_queue_item_s *next;
 	dance_step_position_s data;
-} work_queue_item_t;
+};
+
+typedef struct work_queue_item_s work_queue_item_t;
+ 
 
 class DanceStepManagement:public ModuleBase<DanceStepManagement>
 {

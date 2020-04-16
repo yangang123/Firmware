@@ -227,8 +227,9 @@ DanceStepManagement::handle_message_set_position_target_global_int(dance_step_po
 
 		vehicle_control_mode_s control_mode{};
 		_control_mode_sub.copy(&control_mode);
-
+		warnx("offboard mode value:%d", control_mode.flag_control_offboard_enabled); 
 		if (control_mode.flag_control_offboard_enabled) {
+			
 			if (is_force_sp && offboard_control_mode.ignore_position &&
 				offboard_control_mode.ignore_velocity) {
 
