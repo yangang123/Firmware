@@ -352,24 +352,39 @@ void DanceStepManagement::run()
 	while (!should_exit()) {
 
 		//接收mavlink发送过来的orb
+		/*
 		if (_dance_step_position_sub.updated())
 		{
 			work_queue_item_t * item_recv =  alloc_item();
 			if (item_recv) {
+
+
+				
 				_dance_step_position_sub.copy(&item_recv->data);
 				add_item_to_work_queue(item_recv);
 			}
 		}
+		*/
 
 		//定时器发送舞步到offboard
 		if (hrt_absolute_time() - current > 10000) {
 			current = hrt_absolute_time();
-
-			work_queue_item_t * item_send = get_item_from_work_queue();
-			if (item_send) {
-				handle_message_set_position_target_global_int(item_send->data);
-				free_item(item_send);
-			}
+			//  虚拟数据航点信息赋值
+			item_send->data.lat_int =  42.391138   * 1e7;
+			item_send->data.lon_int =  123.3718778 * 1e7;
+			item_send->data.vx = 1;
+			item_send->data.vy = 1;
+			item_send->data.vz = 1;
+			item_send->data.afx = 1;
+			item_send->data.afy = 1;
+			item_send->data.afz = 1;
+			item_send->data.yaw = 0;
+			item_send->data.yaw_rate = 0;
+			item_send->data.type_mask = POSITION_TARGET_TYPEMASK_X_IGNORE;
+			item_send->data.target_system =0;
+			item_send->data.target_component =0;
+		handle_message_set_position_target_global_int(item_send->data);
+			
 		}
 
 		//线程延时5ms
