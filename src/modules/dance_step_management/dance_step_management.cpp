@@ -227,9 +227,9 @@ DanceStepManagement::handle_message_set_position_target_global_int(dance_step_po
 
 		vehicle_control_mode_s control_mode{};
 		_control_mode_sub.copy(&control_mode);
-		warnx("offboard mode value:%d", control_mode.flag_control_offboard_enabled); 
+		warnx("offboard mode value:%d", control_mode.flag_control_offboard_enabled);
 		if (control_mode.flag_control_offboard_enabled) {
-			
+
 			if (is_force_sp && offboard_control_mode.ignore_position &&
 				offboard_control_mode.ignore_velocity) {
 
@@ -284,7 +284,7 @@ DanceStepManagement::handle_message_set_position_target_global_int(dance_step_po
 
 				/* set the local velocity values */
 				if (!offboard_control_mode.ignore_velocity) {
-
+					warnx("ignore");
 					pos_sp_triplet.current.velocity_valid = true;
 					pos_sp_triplet.current.vx = set_position_target_global_int.vx;
 					pos_sp_triplet.current.vy = set_position_target_global_int.vy;
@@ -337,7 +337,7 @@ DanceStepManagement::handle_message_set_position_target_global_int(dance_step_po
 				} else {
 					pos_sp_triplet.current.yawspeed_valid = false;
 				}
-
+				//pos_sp_triplet.current.velocity_frame = 1;
 				_pos_sp_triplet_pub.publish(pos_sp_triplet);
 
 				warnx("send _pos_sp_triplet_pub");
@@ -351,7 +351,7 @@ DanceStepManagement::handle_message_set_position_target_global_int(dance_step_po
 void DanceStepManagement::run()
 {
 
-	hrt_abstime current = hrt_absolute_time();
+	//hrt_abstime current = hrt_absolute_time();
 
 	while (!should_exit()) {
 
@@ -363,42 +363,74 @@ void DanceStepManagement::run()
 			if (item_recv) {
 
 
-				
+
 				_dance_step_position_sub.copy(&item_recv->data);
 				add_item_to_work_queue(item_recv);
 			}
 		}
 		*/
 
+
 		//定时器发送舞步到offboard
-		if (hrt_absolute_time() - current > 10000) {
-			current = hrt_absolute_time();
-			work_queue_item_t item;
-			work_queue_item_t *item_send = &item;
-			//  虚拟数据航点信息赋值
-			item_send->data.lat_int =  42.391138   * 1e7;
-			item_send->data.lon_int =  123.3718778 * 1e7;
-			item_send->data.vx = 1;
-			item_send->data.vy = 1;
-			item_send->data.vz = 1;
-			item_send->data.afx = 1;
-			item_send->data.afy = 1;
-			item_send->data.afz = 1;
-			item_send->data.yaw = 0;
-			item_send->data.yaw_rate = 0;
-			item_send->data.type_mask = POSITION_TARGET_TYPEMASK_X_IGNORE;
-			item_send->data.target_system =0;
-			item_send->data.target_component =0;
-			handle_message_set_position_target_global_int(item_send->data);
+		//if (hrt_absolute_time() - current > 10000) {
+
+			for (int j =0 ; j < 3; j++ ){
+				for (uint8_t i = 0; i < 100; i++) {
+					//current = hrt_absolute_time();
+					work_queue_item_t item;
+					work_queue_item_t *item_send = &item;
+					//  虚拟数据航点信息赋值
+					switch (j) {
+					case 0:
+					item_send->data.lat_int =  47.398170327054473   * 1e7;
+					item_send->data.lon_int =  8.5456490218639658 * 1e7;
+					//	warnx("0");
+						break;
+						case 1:
+						item_send->data.lat_int =   47.398241338125118   * 1e7;
+				item_send->data.lon_int =  8.5455360114574432 * 1e7;
+				//warnx("1");
+						break;
+						case 2:
+						item_send->data.lat_int =   47.398139363821485   * 1e7;
+				item_send->data.lon_int =  8.5453846156597137 * 1e7;
+				//warnx("2");
+						break;
+
+					}
+
+					item_send->data.alt = 20;
+					item_send->data.vx = 1;
+					item_send->data.vy = 1;
+					item_send->data.vz = 1;
+					item_send->data.afx = 1;
+					item_send->data.afy = 1;
+					item_send->data.afz = 1;
+					item_send->data.yaw = 0;
+					item_send->data.yaw_rate = 0;
+					item_send->data.type_mask = POSITION_TARGET_TYPEMASK_X_IGNORE;
+					item_send->data.target_system =0;
+					item_send->data.target_component =0;
+					item_send->data.coordinate_frame =1;
+
+					handle_message_set_position_target_global_int(item_send->data);
+					usleep(100);
+				}
+			}
+
+
+
+
+
 
 			warnx("send one point to offboard");
-			
-		}
+
+		//}
 
 		//线程延时5ms
 		px4_usleep(5000);
 
-		sleep(1);
+		//sleep(1);
 	}
 
 	warnx("exiting.");

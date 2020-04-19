@@ -163,8 +163,12 @@ Navigator::run()
 
 	hrt_abstime last_geofence_check = 0;
 
-	while (!should_exit()) {
 
+
+
+	while (!should_exit()) {
+	// 	warnx("home postion: lat %lf, lon %lf", get_home_position()->lat,
+	// get_home_position()->lon);
 		/* wait for up to 1000ms for data */
 		int pret = px4_poll(&fds[0], (sizeof(fds) / sizeof(fds[0])), 1000);
 
