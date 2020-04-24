@@ -81,7 +81,8 @@ struct work_queue_item_s {
 };
 
 typedef struct work_queue_item_s work_queue_item_t;
- 
+
+
 
 class DanceStepManagement:public ModuleBase<DanceStepManagement>
 {
@@ -113,6 +114,8 @@ public:
 
 	/** @see ModuleBase::print_status() */
 	int print_status() override;
+
+
 
 private:
 

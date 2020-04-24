@@ -220,7 +220,7 @@ DanceStepManagement::handle_message_set_position_target_global_int(dance_step_po
 
 		offboard_control_mode.timestamp = hrt_absolute_time();
 		_offboard_control_mode_pub.publish(offboard_control_mode);
-		warnx("send offboard_control_mode_pub");
+		warnx("offboard %d",offboard_control_mode.ignore_position );
 
 		/* If we are in offboard control mode and offboard control loop through is enabled
 		 * also publish the setpoint topic which is read by the controller */
@@ -276,15 +276,24 @@ DanceStepManagement::handle_message_set_position_target_global_int(dance_step_po
 										set_position_target_global_int.lon_int / 1e7, set_position_target_global_int.alt,
 										&pos_sp_triplet.current.x, &pos_sp_triplet.current.y, &pos_sp_triplet.current.z);
 						pos_sp_triplet.current.position_valid = true;
+						warnx("local_pos.ref_alt%d",  (int)local_pos.ref_alt );
+						warnx("z======%d",  (int)pos_sp_triplet.current.z);
+						//pos_sp_triplet.current.z =local_pos.ref_alt - pos_sp_triplet.current.z;
+						warnx("current x=%d",  (int)pos_sp_triplet.current.x );
+						
+				
+					
 					}
 
 				} else {
 					pos_sp_triplet.current.position_valid = false;
 				}
 
+
+
 				/* set the local velocity values */
 				if (!offboard_control_mode.ignore_velocity) {
-					warnx("ignore");
+
 					pos_sp_triplet.current.velocity_valid = true;
 					pos_sp_triplet.current.vx = set_position_target_global_int.vx;
 					pos_sp_triplet.current.vy = set_position_target_global_int.vy;
@@ -294,6 +303,8 @@ DanceStepManagement::handle_message_set_position_target_global_int(dance_step_po
 
 				} else {
 					pos_sp_triplet.current.velocity_valid = false;
+
+					warnx("velocity_valid" );
 				}
 
 				if (!offboard_control_mode.ignore_alt_hold) {
@@ -337,8 +348,9 @@ DanceStepManagement::handle_message_set_position_target_global_int(dance_step_po
 				} else {
 					pos_sp_triplet.current.yawspeed_valid = false;
 				}
-				//pos_sp_triplet.current.velocity_frame = 1;
+
 				_pos_sp_triplet_pub.publish(pos_sp_triplet);
+
 
 				warnx("send _pos_sp_triplet_pub");
 			}
@@ -351,86 +363,92 @@ DanceStepManagement::handle_message_set_position_target_global_int(dance_step_po
 void DanceStepManagement::run()
 {
 
-	//hrt_abstime current = hrt_absolute_time();
+	hrt_abstime current = hrt_absolute_time();
+	warnx("DanceStepManagementd");
 
 	while (!should_exit()) {
 
 		//接收mavlink发送过来的orb
-		/*
+		dance_step_position_s  m_danceSend;
+		dance_step_position_s  m_danceReceive;
 		if (_dance_step_position_sub.updated())
 		{
-			work_queue_item_t * item_recv =  alloc_item();
-			if (item_recv) {
 
 
+			_dance_step_position_sub.copy(&m_danceReceive);
+			m_danceReceive.coordinate_frame=1;
+			warnx("afy=%d",  (int)m_danceReceive.afy );
+   /*
+			warnx("lat=%d",(int) m_danceReceive.lat_int );
+			warnx("lon=%d",  (int)m_danceReceive.lon_int );
+			warnx("corrdframe=%d",  (int)m_danceReceive.coordinate_frame );
+			warnx("vx=%d",  (int)m_danceReceive.vx );
+			warnx("vy=%d",  (int)m_danceReceive.vy );
+			warnx("vz=%d",  (int)m_danceReceive.vz );
 
-				_dance_step_position_sub.copy(&item_recv->data);
-				add_item_to_work_queue(item_recv);
-			}
+			warnx("afx=%d",  (int)m_danceReceive.afx );
+			warnx("afy=%d",  (int)m_danceReceive.afy );
+			warnx("afz=%d",  (int)m_danceReceive.afz );
+			warnx("yaw=%d",  (int)m_danceReceive.yaw );
+			warnx("yaw_rate=%d",  (int)m_danceReceive.yaw_rate );
+			warnx("type_mask=%d",  (int)m_danceReceive.type_mask );
+			warnx("target_system=%d",  (int)m_danceReceive.target_system );
+			warnx("target_component=%d",  (int)m_danceReceive.target_component );
+			warnx("yaw_rate=%d",  (int)m_danceReceive.alt );
+			*/
+
 		}
-		*/
 
 
 		//定时器发送舞步到offboard
-		//if (hrt_absolute_time() - current > 10000) {
+		if (hrt_absolute_time() - current > 10000) {
+			current = hrt_absolute_time();
 
-			for (int j =0 ; j < 3; j++ ){
-				for (uint8_t i = 0; i < 100; i++) {
-					//current = hrt_absolute_time();
-					work_queue_item_t item;
-					work_queue_item_t *item_send = &item;
-					//  虚拟数据航点信息赋值
-					switch (j) {
-					case 0:
-					item_send->data.lat_int =  47.398170327054473   * 1e7;
-					item_send->data.lon_int =  8.5456490218639658 * 1e7;
-					//	warnx("0");
-						break;
-						case 1:
-						item_send->data.lat_int =   47.398241338125118   * 1e7;
-				item_send->data.lon_int =  8.5455360114574432 * 1e7;
-				//warnx("1");
-						break;
-						case 2:
-						item_send->data.lat_int =   47.398139363821485   * 1e7;
-				item_send->data.lon_int =  8.5453846156597137 * 1e7;
-				//warnx("2");
-						break;
-
-					}
-
-					item_send->data.alt = 20;
-					item_send->data.vx = 1;
-					item_send->data.vy = 1;
-					item_send->data.vz = 1;
-					item_send->data.afx = 1;
-					item_send->data.afy = 1;
-					item_send->data.afz = 1;
-					item_send->data.yaw = 0;
-					item_send->data.yaw_rate = 0;
-					item_send->data.type_mask = POSITION_TARGET_TYPEMASK_X_IGNORE;
-					item_send->data.target_system =0;
-					item_send->data.target_component =0;
-					item_send->data.coordinate_frame =1;
-
-					handle_message_set_position_target_global_int(item_send->data);
-					usleep(100);
-				}
-			}
+			//  虚拟数据航点信息赋值
+			m_danceSend.lat_int =  m_danceReceive.lat_int;
+			m_danceSend.lon_int = m_danceReceive.lon_int;
+			m_danceSend.alt = m_danceReceive.alt ;
+			m_danceSend.vx = 0;
+			m_danceSend.vy =0;
+			m_danceSend.vz =0;
+			m_danceSend.afx =0;
+			m_danceSend.afy = 0;
+			m_danceSend.afz = 0;
+			m_danceSend.yaw = 0;
+			m_danceSend.yaw_rate = 0;
+			m_danceSend.type_mask = m_danceReceive.type_mask;
+			m_danceSend.target_system =0;
+			m_danceSend.target_component = 0;
+			m_danceSend.coordinate_frame=m_danceReceive.coordinate_frame;
+			handle_message_set_position_target_global_int(m_danceSend);
 
 
+			warnx("lat=%d",(int) m_danceSend.lat_int );
+			warnx("lon=%d",  (int)m_danceSend.lon_int );
+		//warnx("corrdframe=%d",  (int)m_danceSend.coordinate_frame );
+		//	warnx("vx=%d",  (int)m_danceSend.vx );
+		//	warnx("vy=%d",  (int)m_danceSend.vy );
+		//	warnx("vz=%d",  (int)m_danceSend.vz );
 
+		//	warnx("afx=%d",  (int)m_danceSend.afx );
+		//	warnx("afy=%d",  (int)m_danceSend.afy );
+		//	warnx("afz=%d",  (int)m_danceSend.afz );
+		//	warnx("yaw=%d",  (int)m_danceSend.yaw );
+		//	warnx("yaw_rate=%d",  (int)m_danceSend.yaw_rate );
+		//	warnx("type_mask=%d",  (int)m_danceSend.type_mask );
+		//	warnx("target_system=%d",  (int)m_danceSend.target_system );
+		//	warnx("target_component=%d",  (int)m_danceSend.target_component );
+			warnx("alt=%d",  (int)m_danceSend.alt );
 
+			//warnx("send one point to offboard");
+		
 
-
-			warnx("send one point to offboard");
-
-		//}
+		}
 
 		//线程延时5ms
 		px4_usleep(5000);
 
-		//sleep(1);
+		sleep(1);
 	}
 
 	warnx("exiting.");
