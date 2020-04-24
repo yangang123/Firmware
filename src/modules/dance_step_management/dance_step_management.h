@@ -53,6 +53,7 @@
 #include <uORB/topics/vehicle_control_mode.h>
 #include <uORB/topics/vehicle_local_position.h>
 
+#include <drivers/device/ringbuffer.h>
 
 namespace dance_step_management
 {
@@ -77,7 +78,7 @@ typedef enum POSITION_TARGET_TYPEMASK
 
 struct work_queue_item_s {
 	struct work_queue_item_s *next;
-	dance_step_position_s data;
+	struct dance_step_position_s data;
 };
 
 typedef struct work_queue_item_s work_queue_item_t;
@@ -117,6 +118,8 @@ public:
 
 
 
+
+
 private:
 
 	//从空闲队列中取1个item
@@ -134,7 +137,11 @@ private:
 	//打印队列状态
 	void print_queue(void);
 
+	void ringbuffer_debug(void);
+
 	void handle_message_set_position_target_global_int(dance_step_position_s &set_position_target_global_int);
+
+	ringbuffer::RingBuffer *_reports;
 
 	uORB::Publication<offboard_control_mode_s>		_offboard_control_mode_pub{ORB_ID(offboard_control_mode)};
 	uORB::Publication<position_setpoint_triplet_s>		_pos_sp_triplet_pub{ORB_ID(position_setpoint_triplet)};

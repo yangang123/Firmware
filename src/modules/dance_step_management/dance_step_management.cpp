@@ -75,8 +75,10 @@ namespace dance_step_management
 // static 	sq_queue_t 	g_free_q;
 // static 	sq_queue_t 	g_work_q;
 
-DanceStepManagement::DanceStepManagement()
+DanceStepManagement::DanceStepManagement():
+_reports(new ringbuffer::RingBuffer(10, sizeof(dance_step_position_s)))
 {
+	//_reports = );
 	// sq_init(&g_free_q);
 	// sq_init(&g_work_q);
 
@@ -280,9 +282,9 @@ DanceStepManagement::handle_message_set_position_target_global_int(dance_step_po
 						warnx("z======%d",  (int)pos_sp_triplet.current.z);
 						//pos_sp_triplet.current.z =local_pos.ref_alt - pos_sp_triplet.current.z;
 						warnx("current x=%d",  (int)pos_sp_triplet.current.x );
-						
-				
-					
+
+
+
 					}
 
 				} else {
@@ -360,24 +362,69 @@ DanceStepManagement::handle_message_set_position_target_global_int(dance_step_po
 }
 
 
+void DanceStepManagement::ringbuffer_debug()
+{
+	struct dance_step_position_s  m_danceSend;
+	struct dance_step_position_s  m_danceReceive;
+
+	m_danceReceive.coordinate_frame=1;
+	warnx("push:%d", m_danceReceive.coordinate_frame);
+	_reports->force(&m_danceReceive);
+
+	m_danceReceive.coordinate_frame=2;
+	warnx("push:%d", m_danceReceive.coordinate_frame);
+	_reports->force(&m_danceReceive);
+
+	m_danceReceive.coordinate_frame=3;
+	warnx("push:%d", m_danceReceive.coordinate_frame);
+	_reports->force(&m_danceReceive);
+
+	dance_step_position_s *mag_buf1 = &m_danceSend;
+	if(_reports->get(mag_buf1)) {
+		warnx("pop:%d", m_danceSend.coordinate_frame);
+	}
+
+	if(_reports->get(mag_buf1)) {
+		warnx("pop:%d", m_danceSend.coordinate_frame);
+	}
+
+	if(_reports->get(mag_buf1)) {
+		warnx("pop:%d", m_danceSend.coordinate_frame);
+	}
+
+	if(_reports->get(mag_buf1)) {
+		warnx("pop:%d", m_danceSend.coordinate_frame);
+	} else {
+		warnx("empty");
+	}
+
+
+}
 void DanceStepManagement::run()
 {
 
 	hrt_abstime current = hrt_absolute_time();
 	warnx("DanceStepManagementd");
 
+#ifndef DEBUG
+	ringbuffer_debug();
+#endif
+
 	while (!should_exit()) {
 
 		//接收mavlink发送过来的orb
-		dance_step_position_s  m_danceSend;
-		dance_step_position_s  m_danceReceive;
+		struct dance_step_position_s  m_danceSend;
+		struct dance_step_position_s  m_danceReceive;
+
 		if (_dance_step_position_sub.updated())
 		{
 
-
 			_dance_step_position_sub.copy(&m_danceReceive);
+
 			m_danceReceive.coordinate_frame=1;
 			warnx("afy=%d",  (int)m_danceReceive.afy );
+
+			_reports->force(&m_danceReceive);
    /*
 			warnx("lat=%d",(int) m_danceReceive.lat_int );
 			warnx("lon=%d",  (int)m_danceReceive.lon_int );
@@ -404,23 +451,27 @@ void DanceStepManagement::run()
 		if (hrt_absolute_time() - current > 10000) {
 			current = hrt_absolute_time();
 
-			//  虚拟数据航点信息赋值
-			m_danceSend.lat_int =  m_danceReceive.lat_int;
-			m_danceSend.lon_int = m_danceReceive.lon_int;
-			m_danceSend.alt = m_danceReceive.alt ;
-			m_danceSend.vx = 0;
-			m_danceSend.vy =0;
-			m_danceSend.vz =0;
-			m_danceSend.afx =0;
-			m_danceSend.afy = 0;
-			m_danceSend.afz = 0;
-			m_danceSend.yaw = 0;
-			m_danceSend.yaw_rate = 0;
-			m_danceSend.type_mask = m_danceReceive.type_mask;
-			m_danceSend.target_system =0;
-			m_danceSend.target_component = 0;
-			m_danceSend.coordinate_frame=m_danceReceive.coordinate_frame;
+			dance_step_position_s *mag_buf = &m_danceSend;
+			if (_reports->get(mag_buf)) {
+
+			// //  虚拟数据航点信息赋值
+			// m_danceSend.lat_int =  m_danceReceive.lat_int;
+			// m_danceSend.lon_int = m_danceReceive.lon_int;
+			// m_danceSend.alt = m_danceReceive.alt ;
+			// m_danceSend.vx = 0;
+			// m_danceSend.vy =0;
+			// m_danceSend.vz =0;
+			// m_danceSend.afx =0;
+			// m_danceSend.afy = 0;
+			// m_danceSend.afz = 0;
+			// m_danceSend.yaw = 0;
+			// m_danceSend.yaw_rate = 0;
+			// m_danceSend.type_mask = m_danceReceive.type_mask;
+			// m_danceSend.target_system =0;
+			// m_danceSend.target_component = 0;
+			// m_danceSend.coordinate_frame=m_danceReceive.coordinate_frame;
 			handle_message_set_position_target_global_int(m_danceSend);
+
 
 
 			warnx("lat=%d",(int) m_danceSend.lat_int );
@@ -439,9 +490,10 @@ void DanceStepManagement::run()
 		//	warnx("target_system=%d",  (int)m_danceSend.target_system );
 		//	warnx("target_component=%d",  (int)m_danceSend.target_component );
 			warnx("alt=%d",  (int)m_danceSend.alt );
+			}
 
 			//warnx("send one point to offboard");
-		
+
 
 		}
 
